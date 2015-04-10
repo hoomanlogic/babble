@@ -1,0 +1,14 @@
+{
+  "name": "Babelchip",
+  "version": "1.0.0",
+  "authors": [
+    "Geoff Manning <geoffrey.floyd@hoomanlogic.com>"
+  ],
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+  ]
+}
