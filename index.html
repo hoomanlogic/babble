@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Demo</title>
+        <title>Babelchip</title>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     </head>
     <body>
@@ -14,7 +14,7 @@
             function handleNumbersInputChange(event) {
                 var input = document.getElementById('numbersInput');
                 var span = document.getElementById('numbersResult');
-                span.innerHTML = numbers.parse(input.value).digify;
+                span.innerHTML = numbers.parse(input.value).digify();
                 console.log(numbers.parse(input.value));
             }
         </script>
