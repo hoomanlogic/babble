@@ -4,7 +4,7 @@ Babelchip is a JavaScript library for building user interfaces that understand h
 
 ### Getting Started
 
-To get all the required packages, run the following commands in the root folder:
+To get all the required packages, run the following command in the root folder:
 
     npm install
 
