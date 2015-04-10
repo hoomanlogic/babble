@@ -1,6 +1,4 @@
-[![Build Status](https://travis-ci.org/hoomanlogic/babelchip.svg)](https://travis-ci.org/hoomanlogic/babelchip)
-# Babelchip
-
+# Babelchip [![Build Status](https://travis-ci.org/hoomanlogic/babelchip.svg)](https://travis-ci.org/hoomanlogic/babelchip)
 Babelchip is a JavaScript library for building user interfaces that understand humans.
 
 ### Getting Started
