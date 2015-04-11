@@ -12,7 +12,7 @@
         var core = require('./core.js');
         var numbers = require('./numbers.js');
     } else {
-        var core = window['__babelchip_core___']
+        var core = window['__babelchip_core__']
     }
     var Preparsers = [
         numbers || window['numbers']
