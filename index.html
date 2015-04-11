@@ -1,22 +1,39 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Demo</title>
+        <title>Babelchip</title>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     </head>
     <body>
         <h3>Numbers</h3>
-        <input id="numbersInput" type="text" onkeyup="handleNumbersInputChange()" />
-        <span id="numbersResult"></span>
         
         <script type="text/javascript" src="dist/numbers.min.js"></script>
         <script type="text/javascript">
             function handleNumbersInputChange(event) {
                 var input = document.getElementById('numbersInput');
                 var span = document.getElementById('numbersResult');
-                span.innerHTML = numbers.parse(input.value).digify;
+                span.innerHTML = numbers.parse(input.value).digify();
                 console.log(numbers.parse(input.value));
             }
         </script>
+        
+        <input id="numbersInput" type="text" onkeyup="handleNumbersInputChange()" />
+        <span id="numbersResult"></span>
+        
+        <h3>Durations</h3>
+        <div>Durations take advantage of the hierarchical parsing, calling on the numbers parser to turn all those numbers into something it can easily understand</div>
+        
+        <script type="text/javascript" src="dist/durations.min.js"></script>
+        <script type="text/javascript">
+            function handleDurationsInputChange(event) {
+                var input = document.getElementById('durationsInput');
+                var span = document.getElementById('durationsResult');
+                span.innerHTML = durations.parse(input.value).digify();
+                console.log(durations.parse(input.value));
+            }
+        </script>
+        
+        <input id="durationsInput" type="text" onkeyup="handleDurationsInputChange()" />
+        <span id="durationsResult"></span>
     </body>
 </html>
