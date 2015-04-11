@@ -20,9 +20,11 @@
     /*
      * Create parsed results object and Bind functions to the parsed results for sugar
      */
-    function ParsedResult(input, tokens) {
+    function ParsedResult(input, tokens, preParsedOutput, preParsedResults) {
         this.input = input;
         this.tokens = tokens;
+        this.preParsedOutput = preParsedOutput || null;
+        this.preParsedResults = preParsedResults || null;
         this.digify = digify.bind(this);
     }
 
@@ -148,7 +150,9 @@
     exports.parse = function (input, locale) {
 
         /*
-         *
+         * Set the locale used for matching
+         * and default to the CurrentLocale
+         * if not specified.
          */
         if (locale && Locales[locale]) {
             locale = Locales[locale];
@@ -212,13 +216,14 @@
         });
         
         /*
-         * Add numerical language matches
+         * Return empty result when there are
+         * no matches
          */
         if (matches.length === 0) {
             return new ParsedResult(input, []); 
         }
 
-        var result = [{ value: 0, text: '', segments: [0] }];
+        var result = [{ kind: 'number', pos: 0, value: 0, text: '', segments: [0] }];
         var resultIndex = 0;
         var segmentIndex = 0;
         var previous = null;
@@ -231,7 +236,7 @@
                 if (locale.joiners.indexOf(joiner) === -1) {
                     result[resultIndex].value = result[resultIndex].segments.reduce(function (prev, next) { return (prev || 0) + next; });
                     result[resultIndex].text = input.slice(result[resultIndex].pos, previous.pos + previous.len);
-                    result.push({ value: 0, text: '', segments: [0] });
+                    result.push({ kind: 'number', pos: 0, value: 0, text: '', segments: [0] });
                     resultIndex++;
                     segmentIndex = 0;
                     previous = null;
@@ -287,6 +292,6 @@
          * Create parsed results object and Bind functions to the parsed results for sugar
          */
         return new ParsedResult(input, result);
-    }
+    };
 
 }(typeof exports === 'undefined' ? this['numbers'] = {}: exports));

@@ -2,10 +2,19 @@ var chai = require('chai');
 var expect = chai.expect;
 var should = chai.should();
 
+
+
 /**
  * Numbers Testing
  */
 var numbers = require('../src/numbers.js');
+var durations = require('../src/durations.js');
+
+describe('durations digify', function() {
+    it('should parse "1hr30min"', function() {
+        durations.parse('1hr30min').digify().should.equal(90 * 60 * 1000 + '');
+    })
+})
 
 describe('numbers digify', function() {
     
