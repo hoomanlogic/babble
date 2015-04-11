@@ -23,7 +23,8 @@ gulp.task('build', function () {
             path.basename += '.min';
         }))
         .pipe(uglify())
-        .pipe(gulp.dest('dist'));
+        .pipe(gulp.dest('dist'))
+		.pipe(gulp.dest('../pages/babelchip/dist'));
 });
 
 gulp.task('test', function () {

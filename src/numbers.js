@@ -6,28 +6,15 @@
     'use strict';
 
     /**
-     * This takes any string, locates groups of 
-     * spelled out numbers and converts them to digits
+     * Define core and preparse dependencies
      */
-    function digify () {
-        var input = this.input;
-        for (var i = 0; i < this.tokens.length; i++) {
-            input = input.replace(this.tokens[i].text, this.tokens[i].value);   
-        }
-        return input;
+    if (typeof require !== 'undefined') {
+        var core = require('./core.js');
+    } else {
+        var core = window['__babelchip_core___']
     }
-
-    /*
-     * Create parsed results object and Bind functions to the parsed results for sugar
-     */
-    function ParsedResult(input, tokens, preParsedOutput, preParsedResults) {
-        this.input = input;
-        this.tokens = tokens;
-        this.preParsedOutput = preParsedOutput || null;
-        this.preParsedResults = preParsedResults || null;
-        this.digify = digify.bind(this);
-    }
-
+    var Preparsers = [];
+    
     var Locales = {
         'en-US': {
             /*
@@ -220,7 +207,7 @@
          * no matches
          */
         if (matches.length === 0) {
-            return new ParsedResult(input, []); 
+            return new core.ParsedResult(input, []); 
         }
 
         var result = [{ kind: 'number', pos: 0, value: 0, text: '', segments: [0] }];
@@ -286,12 +273,10 @@
         result[resultIndex].value = result[resultIndex].segments.reduce(function (prev, next) { return (prev || 0) + next; });
         result[resultIndex].text = input.slice(result[resultIndex].pos, previous.pos + previous.len);
 
-
-        
         /*
          * Create parsed results object and Bind functions to the parsed results for sugar
          */
-        return new ParsedResult(input, result);
+        return new core.ParsedResult(input, result);
     };
 
 }(typeof exports === 'undefined' ? this['numbers'] = {}: exports));

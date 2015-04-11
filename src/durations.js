@@ -6,38 +6,18 @@
     'use strict';
     
     /**
-     * Dependencies for preparsing
+     * Define core and preparse dependencies
      */
     if (typeof require !== 'undefined') {
+        var core = require('./core.js');
         var numbers = require('./numbers.js');
+    } else {
+        var core = window['__babelchip_core___']
     }
     var Preparsers = [
         numbers || window['numbers']
     ];
     
-    /**
-     * This takes any string, locates groups of 
-     * spelled out numbers and converts them to digits
-     */
-    function digify () {
-        var input = this.preParsedOutput || this.input;
-        for (var i = 0; i < this.tokens.length; i++) {
-            input = input.replace(this.tokens[i].text, this.tokens[i].value);   
-        }
-        return input;
-    }
-
-    /**
-     * Create parsed results object and Bind functions to the parsed results for sugar
-     */
-    function ParsedResult(input, tokens, preParsedOutput, preParsedResults) {
-        this.input = input;
-        this.tokens = tokens;
-        this.preParsedOutput = preParsedOutput || null;
-        this.preParsedResults = preParsedResults || null;
-        this.digify = digify.bind(this);
-    }
-
     var Locales = {
         'en-US': {
             'hours': [
@@ -160,7 +140,7 @@
          * Add numerical language matches
          */
         if (matches.length === 0) {
-            return new ParsedResult(input, [], preParsedOutput, preParsedResults); 
+            return new core.ParsedResult(input, [], preParsedOutput, preParsedResults); 
         }
 
         var segments = [];
@@ -209,7 +189,7 @@
         /*
          * Create parsed results object and Bind functions to the parsed results for sugar
          */
-        return new ParsedResult(input, results, preParsedOutput, preParsedResults);
+        return new core.ParsedResult(input, results, preParsedOutput, preParsedResults);
     };
 
 }(typeof exports === 'undefined' ? this['durations'] = {}: exports));
