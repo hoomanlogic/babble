@@ -1,6 +1,7 @@
 /**
- * numbers - Natural language processing for Numbers
- * 2015, HoomanLogic, Geoff Manning
+ * @module numbers
+ * @dependency core
+ * @description Natural language processing for Numbers.
  */
 (function (exports) {
     'use strict';
@@ -17,7 +18,7 @@
     
     var Locales = {
         'en-US': {
-            /*
+            /**
              * When expanding to support other locales
              * ensure that numbers that contain the words of
              * other numbers are entered AFTER the roots.
@@ -136,7 +137,7 @@
      */
     exports.parse = function (input, locale) {
 
-        /*
+        /**
          * Set the locale used for matching
          * and default to the CurrentLocale
          * if not specified.
@@ -156,7 +157,7 @@
         }
         names.reverse();
 
-        /*
+        /**
          * Function keeps the matches in order by the position
          * so processing doesn't have to worry about sorting it
          */
@@ -173,12 +174,12 @@
             }
         };
 
-        /*
+        /**
          * Array for holding number matches
          */
         var matches = [];
 
-        /*
+        /**
          * Add numerical language matches
          */
         var re = new RegExp('(' + names.join('|') + ')', 'gi');
@@ -190,7 +191,7 @@
             });
         });
         
-        /*
+        /**
          * Add digit matches
          */
         re = /([+-]{0,1}\d+)/gi;
@@ -202,7 +203,7 @@
             });
         });
         
-        /*
+        /**
          * Return empty result when there are
          * no matches
          */
@@ -273,7 +274,7 @@
         result[resultIndex].value = result[resultIndex].segments.reduce(function (prev, next) { return (prev || 0) + next; });
         result[resultIndex].text = input.slice(result[resultIndex].pos, previous.pos + previous.len);
 
-        /*
+        /**
          * Create parsed results object and Bind functions to the parsed results for sugar
          */
         return new core.ParsedResult(input, result);
