@@ -133,8 +133,8 @@
     }
         
     exports.Duration.prototype.toMinutes = function () {
-        if (this.milliseconds > 60000) {
-            return Math.floor((this.milliseconds / 1000) / 60);
+        if (this.value > 60000) {
+            return Math.floor((this.value / 1000) / 60);
         } else {
             return 0;   
         }
