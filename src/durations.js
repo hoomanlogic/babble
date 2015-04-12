@@ -1,6 +1,7 @@
 /**
- * durations - Natural language processing for Durations of time
- * 2015, HoomanLogic, Geoff Manning
+ * @module durations
+ * @dependency core
+ * @description Natural language processing for Durations of time.
  */
 (function (exports) {
     'use strict';
@@ -41,15 +42,116 @@
         ]
     };
     
+
+    /**
+     * Create Duration object
+     */
+    exports.Duration = function (milliseconds) {
+        this.value = milliseconds;
+        
+        this.milliseconds = milliseconds;
+        this.seconds = 0;
+        this.minutes = 0;
+        this.hours = 0;
+        this.days = 0;
+
+        if (milliseconds > 999) {
+            this.seconds = Math.floor(this.milliseconds / 1000);;
+            this.milliseconds = this.milliseconds % 1000;
+            if (this.seconds > 59) {
+                this.minutes = Math.floor(this.seconds / 60);
+                this.seconds -= this.minutes * 60;
+                if (this.minutes > 59) {
+                    this.hours = Math.floor(this.minutes / 60);
+                    this.minutes -= this.hours * 60;
+                    if (this.hours > 23) {
+                        this.days = Math.floor(this.hours / 24);
+                        this.hours -= this.days * 24;
+                    }
+                }
+            }
+        }
+    }
     
+    /**
+     * Pluralizes a word (US English) based on the count
+     */
+    var zeroOneOrMany = function (noun, count) {
+        
+        var plural = function (noun) {
+            if (noun[noun.length - 1] === 'y') {
+                return noun.substring(0, noun.length - 1) + 'ies';
+            } else {
+                return noun + 's';
+            }
+        }
+        
+        if (count === 0) {
+            return 'no ' + plural(noun);
+        } else if (count === 1) {
+            return noun;
+        } else {
+            return plural(noun);
+        }
+    };
     
+    exports.Duration.prototype.hoomanize = function (unitOfSpecificity) {
+        
+        if (typeof unitOfSpecificity === 'undefined' || unitOfSpecificity === null || !this.hasOwnProperty(unitOfSpecificity)) {
+            unitOfSpecificity = 'milliseconds';
+        }
+        
+        var info = [];
+        if (this.days) {
+            info.push(this.days + ' ' + zeroOneOrMany('day', this.days));   
+        }
+        if (unitOfSpecificity === 'days') {
+            return info.join(', ');
+        }
+        if (this.hours) {
+            info.push(this.hours + ' ' + zeroOneOrMany('hour', this.hours));   
+        }
+        if (unitOfSpecificity === 'hours') {
+            return info.join(', ');
+        }
+        if (this.minutes) {
+            info.push(this.minutes + ' ' + zeroOneOrMany('minute', this.minutes));   
+        }
+        if (unitOfSpecificity === 'minutes') {
+            return info.join(', ');
+        }
+        if (this.seconds) {
+            info.push(this.seconds + ' ' + zeroOneOrMany('second', this.seconds));   
+        }
+        if (unitOfSpecificity === 'seconds') {
+            return info.join(', ');
+        }
+        if (this.milliseconds) {
+            info.push(this.milliseconds + ' ' + zeroOneOrMany('millisecond', this.milliseconds));   
+        }
+        return info.join(', ');
+    }
+        
+    exports.Duration.prototype.toMinutes = function () {
+        if (this.milliseconds > 60000) {
+            return Math.floor((this.milliseconds / 1000) / 60);
+        } else {
+            return 0;   
+        }
+    }
+    
+    exports.Duration.prototype.toString = function (milliseconds) {
+        return this.value;
+    }
+
+                
     /**
      * This takes any string, locates groups of 
      * durations and returns results
      */
     exports.parse = function (input, locale) {
 
-        /*
+        /**
          * Set the locale used for matching
          * and default to the CurrentLocale
          * if not specified.
@@ -60,7 +162,7 @@
             locale = CurrentLocale;   
         }
         
-        /*
+        /**
          * Run pre-parsing dependencies
          */ 
         var preParsedOutput = input, preParsedResults = [];
@@ -71,7 +173,7 @@
             }
         }
         
-        /*
+        /**
          * These formats come from a project that used a unique approach to parsing,
          * splitting whitespaces and building up the string until it finds a match.
          * This might still be the best way, but trying to avoid that method for now.
@@ -95,7 +197,7 @@
             /(\d+)?:?(\d+):(\d+)/gi
         ];
         
-        /*
+        /**
          * Function keeps the matches in order by the position
          * so processing doesn't have to worry about sorting it
          */
@@ -115,12 +217,12 @@
             }
         };
 
-        /*
+        /**
          * Array for holding number matches
          */
         var matches = [];
 
-        /*
+        /**
          * Add duration language matches
          */
         for (var i = 0; i < formats.length; i++) {
@@ -136,7 +238,7 @@
             });
         }
         
-        /*
+        /**
          * Add numerical language matches
          */
         if (matches.length === 0) {
@@ -186,7 +288,11 @@
         }
         results.push(next);
         
-        /*
+        for (var i = 0; i < results.length; i++) {
+            results[i].value = new exports.Duration(results[i].value);
+        }
+        
+        /**
          * Create parsed results object and Bind functions to the parsed results for sugar
          */
         return new core.ParsedResult(input, results, preParsedOutput, preParsedResults);

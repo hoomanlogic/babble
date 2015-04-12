@@ -1,6 +1,6 @@
 /**
- * core - Natural language processing for Durations of time
- * 2015, HoomanLogic, Geoff Manning
+ * @module core
+ * @description Natural language processing core objects and methods
  */
 (function (exports) {
     'use strict';
@@ -13,10 +13,18 @@
     var digify = function () {
         var input = this.preParsedOutput || this.input;
         for (var i = 0; i < this.tokens.length; i++) {
-            input = input.replace(this.tokens[i].text, this.tokens[i].value);   
+            input = input.replace(this.tokens[i].text, toString(this.tokens[i].value));
         }
         return input;
-    }
+    };
+    
+    var toString = function (obj) {
+        if (obj.hasOwnProperty('toString')) {
+            return obj.toString();
+        } else {
+            return obj;   
+        }
+    };
 
     /**
      * Create parsed results object and Bind functions to the parsed results for sugar
@@ -27,6 +35,6 @@
         this.preParsedOutput = preParsedOutput || null;
         this.preParsedResults = preParsedResults || null;
         this.digify = digify.bind(this);
-    }
+    };
 
 }(typeof exports === 'undefined' ? this['__babelchip_core__'] = {}: exports));
