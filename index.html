@@ -5,38 +5,48 @@
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     </head>
     <body>
-	
-		<script type="text/javascript" src="dist/core.min.js"></script>
-	
         <h3>Numbers</h3>
         
-        <script type="text/javascript" src="dist/numbers.min.js"></script>
-        <script type="text/javascript">
-            function handleNumbersInputChange(event) {
-                var input = document.getElementById('numbersInput');
-                var span = document.getElementById('numbersResult');
-                span.innerHTML = numbers.parse(input.value).digify();
-                console.log(numbers.parse(input.value));
-            }
-        </script>
-        
-        <input id="numbersInput" type="text" onkeyup="handleNumbersInputChange()" />
+        <input id="numbersInput" type="text"/>
         <span id="numbersResult"></span>
         
-        <h3>Durations</h3>
-        <div>Durations take advantage of the hierarchical parsing, calling on the numbers parser to turn all those numbers into something it can easily understand</div>
+        <input id="numbersInput2" type="text"/>
+        <span id="numbersResult2"></span>
         
+        <h3>Durations</h3>
+        
+        <input id="durationsInput" type="text"/>
+        <span id="durationsResult"></span>
+        
+        <script type="text/javascript" src="dist/core.min.js"></script>
+        <script type="text/javascript" src="dist/numbers.min.js"></script>
         <script type="text/javascript" src="dist/durations.min.js"></script>
         <script type="text/javascript">
-            function handleDurationsInputChange(event) {
-                var input = document.getElementById('durationsInput');
+            
+            var numInterpreter = new babelchip.NumberTranslator(function (result, speaker) {
+                if (speaker === document.getElementById('numbersInput')) {
+                    var span = document.getElementById('numbersResult');
+                    span.innerHTML = result.digify();
+                } else if (speaker === document.getElementById('numbersInput2')) {
+                    var span = document.getElementById('numbersResult2');
+                    span.innerHTML = result.digify();
+                }
+                console.log(result);
+            });
+            numInterpreter.listen('numbersInput');
+            numInterpreter.listen('numbersInput2');
+            
+            var durationTranslation = new babelchip.DurationTranslator(function (result) {
                 var span = document.getElementById('durationsResult');
-                span.innerHTML = durations.parse(input.value).digify();
-                console.log(durations.parse(input.value));
-            }
+                
+                if (result.tokens.length > 0) {
+                    span.innerHTML = result.tokens[0].value.hoomanize();
+                } else {
+                    span.innerHTML = result.digify();
+                }
+                console.log(result);
+            });
+            durationTranslation.listen('durationsInput');
         </script>
-        
-        <input id="durationsInput" type="text" onkeyup="handleDurationsInputChange()" />
-        <span id="durationsResult"></span>
     </body>
 </html>
