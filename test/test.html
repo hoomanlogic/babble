@@ -24,20 +24,20 @@
         <script type="text/javascript" src="../src/durations.js"></script>
         <script type="text/javascript">
             
-            var numInterpreter = new babelchip.NumberTranslator(function (result, speaker) {
-                if (speaker === document.getElementById('numbersInput')) {
-                    var span = document.getElementById('numbersResult');
-                    span.innerHTML = result.digify();
-                } else if (speaker === document.getElementById('numbersInput2')) {
-                    var span = document.getElementById('numbersResult2');
-                    span.innerHTML = result.digify();
-                }
+            babelchip.assignTranslator('numbers', 'numbersInput', function (result) {
+                var span = document.getElementById('numbersResult');
+                span.innerHTML = result.digify();
                 console.log(result);
             });
-            numInterpreter.listen('numbersInput');
-            numInterpreter.listen('numbersInput2');
             
-            var durationTranslation = new babelchip.DurationTranslator(function (result) {
+            babelchip.assignTranslator('numbers', 'numbersInput2', function (result) {
+                var span = document.getElementById('numbersResult2');
+                span.innerHTML = result.digify();
+                console.log(result);
+            });
+            
+            var durationTranslation = babelchip.getTranslator('durations');
+            durationTranslation.onTranslate = function (result) {
                 var span = document.getElementById('durationsResult');
                 
                 if (result.tokens.length > 0) {
@@ -46,7 +46,7 @@
                     span.innerHTML = result.digify();
                 }
                 console.log(result);
-            });
+            };
             durationTranslation.listen('durationsInput');
         </script>
         

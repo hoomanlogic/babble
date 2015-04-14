@@ -43,7 +43,7 @@
         this.digify = digify.bind(this);
     };
 
-    var BaseTranslator = function (onTranslate, locale) {
+    var BaseTranslator = function (locale, onTranslate) {
 
         /**
          * Validate instance
@@ -77,7 +77,7 @@
          * Define onTranslate which is called
          * by the listen event
          */ 
-        this.onTranslate = onTranslate;
+        this.onTranslate = onTranslate || null;
         
         /**
          * Define assistants array if derived class
@@ -93,7 +93,7 @@
          * Attaches the translate function to an event listener
          * @param speaker {Element, object, string} 
          */
-        listen: function (speaker, event) {
+        listen: function (speaker, event, onTranslate) {
             /**
              * Get object reference to the Element
              * if speaker is a string and document
@@ -106,21 +106,25 @@
             /**
              * Default event name to input if not given
              */
-            if (typeof event === 'undefined') {
-                event = 'input';
-            }
+            event = event || 'input';
+            
+            /**
+             * Define onTranslate which is called
+             * by the listen event
+             */
+            onTranslate = onTranslate || this.onTranslate;
             
             /**
              * Bind to the input control's oninput event
              */
             if (speaker.addEventListener) {
-                speaker.addEventListener(event, this.translate.bind(this, speaker));
+                speaker.addEventListener(event, this.translate.bind(this, speaker, onTranslate));
             } else if (speaker.attachEvent) {
-                speaker.attachEvent('on' + event, this.translate.bind(this, speaker));
+                speaker.attachEvent('on' + event, this.translate.bind(this, speaker, onTranslate));
             } else if (typeof speaker['on' + event] !== 'undefined') {
-                speaker['on' + event] = this.translate.bind(this, null, speaker);
+                speaker['on' + event] = this.translate.bind(this, speaker, onTranslate);
             } else if (typeof speaker[event] !== 'undefined') {
-                speaker[event] = this.translate.bind(this, null, speaker);
+                speaker[event] = this.translate.bind(this, speaker, onTranslate);
             } else {
                 throw new Error('Could not find an appropriate event to bind to');   
             }
@@ -159,7 +163,9 @@
              */
             if (input) {
                 var result = this.parse(input, locale);
-                if (this.onTranslate && arguments.length > 1 && typeof arguments[0] !== 'string') {
+                if (arguments.length > 2 && typeof arguments[1] === 'function') {
+                    arguments[1](result, arguments[0]);
+                } else if (this.onTranslate && arguments.length > 1 && typeof arguments[0] !== 'string') {
                     this.onTranslate(result, arguments[0]);
                 }
                 return result;
@@ -219,5 +225,30 @@
         return translators[name].instance;
     };
     exports.getTranslator = getTranslator;
+    
+    /**
+     * TODO: Describe this
+     */
+    var assignTranslator = function (name, speaker) {
+        var event = null, 
+            locale = null, 
+            onTranslate = null;
+        
+        if (arguments.length < 3 || typeof arguments[arguments.length - 1] !== 'function') {
+            throw new TypeError('Unexpected number of arguments');   
+        }
+        
+        onTranslate = arguments[arguments.length - 1];
+        if (arguments.length > 3) {
+            event = arguments[2];
+        }
+        if (arguments.length > 4) {
+            locale = arguments[3];
+        }
+        
+        var translator = getTranslator(name, locale);
+        translator.listen(speaker, event, onTranslate);
+    };
+    exports.assignTranslator = assignTranslator;
     
 }(typeof exports === 'undefined' ? this['babelchip'] = this['babelchip'] || {}: exports));
