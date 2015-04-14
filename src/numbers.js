@@ -5,16 +5,6 @@
  */
 (function (exports) {
     'use strict';
-
-    /**
-     * Define core and preparse dependencies
-     */
-    if (typeof require !== 'undefined') {
-        var core = require('./core.js');
-    } else {
-        var core = window['__babelchip_core__']
-    }
-    var Preparsers = [];
     
     var Locales = {
         'en-US': {
@@ -82,9 +72,7 @@
             ]
         }
     };
-    
-    var CurrentLocale = Locales['en-US'];
-    
+
     Locales['de-DE'] = {
         'numbers': {
             'null': 0,
@@ -135,7 +123,7 @@
      * This takes any string, locates groups of 
      * spelled out numbers and returns results
      */
-    exports.parse = function (input, locale) {
+    var parse = function (input, locale) {
 
         /**
          * Set the locale used for matching
@@ -145,10 +133,9 @@
         if (locale && Locales[locale]) {
             locale = Locales[locale];
         } else {
-            locale = CurrentLocale;   
-        }
-        
-
+            locale = Locales[defaultLocale];
+        }    
+    
         // Build list of numbers and reverse so 
         // it matches the 'teens' before the ones
         var names = [];
@@ -161,7 +148,7 @@
          * Function keeps the matches in order by the position
          * so processing doesn't have to worry about sorting it
          */
-        var insertByPosition = function (arr, obj) {
+        var insertMatch = function (arr, obj) {
             if (arr.length === 0 || arr[arr.length - 1].pos < obj.pos) {
                 arr.push(obj);   
             } else {
@@ -183,11 +170,11 @@
          * Add numerical language matches
          */
         var re = new RegExp('(' + names.join('|') + ')', 'gi');
-        input.replace(re, function (s, a, b, c) {
-            insertByPosition(matches, {
-                pos: b,
-                len: a.length,
-                value: locale.numbers[s.toLowerCase()] || parseFloat(s)
+        input.replace(re, function () {
+            insertMatch(matches, {
+                pos: arguments[arguments.length - 2],
+                len: arguments[0].length,
+                value: locale.numbers[arguments[0].toLowerCase()] || parseFloat(arguments[0])
             });
         });
         
@@ -195,11 +182,11 @@
          * Add digit matches
          */
         re = /([+-]{0,1}\d+)/gi;
-        input.replace(re, function (s, a, b, c, d, e, f,g, h, i, j, k) {
-            insertByPosition(matches, {
-                pos: b,
-                len: a.length,
-                value: parseFloat(s)
+        input.replace(re, function () {
+            insertMatch(matches, {
+                pos: arguments[arguments.length - 2],
+                len: arguments[0].length,
+                value: parseFloat(arguments[0])
             });
         });
         
@@ -279,5 +266,36 @@
          */
         return new core.ParsedResult(input, result);
     };
+    
+    /**
+     * Define core and preparse dependencies
+     */
+    if (typeof require !== 'undefined') {
+        var core = require('./core.js');
+    } else {
+        var core = window['babelchip'];
+    }
 
-}(typeof exports === 'undefined' ? this['numbers'] = {}: exports));
+    /**
+     * Define DurationTranslator class
+     */
+    var NumberTranslator = function (onTranslate, locale) {
+        this.name = 'numbers';
+        this.parse = parse;
+        core.BaseTranslator.call(this, onTranslate, locale);
+    }
+    NumberTranslator.prototype = Object.create(core.BaseTranslator.prototype);
+    NumberTranslator.prototype.constructor = NumberTranslator;
+    exports.NumberTranslator = NumberTranslator;
+    
+    /**
+     * Register translator with the core list
+     */
+    var defaultLocale = 'en-US';
+    var locales = [];
+    for (var name in Locales) {
+      locales.push(name);
+    }
+    core.registerTranslator('numbers', NumberTranslator, defaultLocale, locales);
+
+}(typeof exports === 'undefined' ? this['babelchip'] = this['babelchip'] || {} : exports));
