@@ -79,7 +79,8 @@
     var zeroOneOrMany = function (noun, count) {
         
         var plural = function (noun) {
-            if (noun[noun.length - 1] === 'y') {
+            var vowels = ['a','e','i','o','u'];
+            if (noun[noun.length - 1] === 'y' && vowels.indexOf(noun[noun.length - 2].toLowerCase()) === -1) {
                 return noun.substring(0, noun.length - 1) + 'ies';
             } else {
                 return noun + 's';
@@ -188,10 +189,10 @@
             // match #d#h#m format, each part is optional
             // /((\d)+ *?(days|day|dys|dy|d){1})? *?((\d)+ *?(hours|hour|hrs|hr|h){1})? *?((\d)+ *?(minutes|minute|mins|min|m){1})?/gi,
             
-            /((\d)+ *?(days|day|dys|dy|d){1})?/gi,
-            /((\d)+ *?(hours|hour|hrs|hr|h){1})?/gi,
-            /((\d)+ *?(minutes|minute|mins|min|m){1})?/gi,
-            /((\d)+ *?(seconds|second|secs|sec|s){1})?/gi,
+            /(((\d)+|half of an|half an|half|quarter|an|a) *?(days|day|dys|dy|d){1})?/gi,
+            /(((\d)+|half of an|half an|half|quarter|an|a) *?(hours|hour|hrs|hr|h){1})?/gi,
+            /(((\d)+|half of an|half an|half|quarter|an|a) *?(minutes|minute|mins|min|m){1})?/gi,
+            /(((\d)+|half of an|half an|half|quarter|an|a) *?(seconds|second|secs|sec|s){1})?/gi,
             /((\d)+ *?(milliseconds|millisecond|millisecs|millisec|msecs|msec|ms){1})?/gi,
             // match #:#:# format
             /(\d+)?:?(\d+):(\d+)/gi
@@ -260,12 +261,18 @@
             var reMinutes = / *?(minutes|minute|mins|min|m)$/gi;
             var reSeconds = / *?(seconds|second|secs|sec|s)$/gi;
             var reMilliseconds = / *?(milliseconds|millisecond|millisecs|millisec|msecs|msec|ms)$/gi;
+            var reHalf = /(half an|half of an|half of|half)/gi;
+            var reQuarter = /(quarter of an|quarter of|quarter)/gi;
+            var reOne = /(an|a)/gi;
             
-            text = text.replace(reDays, ' * 24 * 60 * 60 * 1000');
-            text = text.replace(reHours, ' * 60 * 60 * 1000');
-            text = text.replace(reMinutes, ' * 60 * 1000');
+            text = text.replace(reDays, ' * (24 * 60 * 60 * 1000)');
+            text = text.replace(reHours, ' * (60 * 60 * 1000)');
+            text = text.replace(reMinutes, ' * (60 * 1000)');
             text = text.replace(reMilliseconds, '');
             text = text.replace(reSeconds, ' * 1000');
+            text = text.replace(reHalf, '0.5 ');
+            text = text.replace(reQuarter, '0.25 ');
+            text = text.replace(reOne, '1 ');
             segments[i].value = parseFloat(eval(text));
         }
         

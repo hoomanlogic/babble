@@ -28,4 +28,20 @@ describe('durations parse', function() {
     it('should parse "1hr30min"', function() {
         durations.parse('1hr30min').digify().should.equal(90 * 60 * 1000 + '');
     })
+    
+    it('should parse "an hour"', function() {
+        durations.parse('an hour').digify().should.equal(60 * 60 * 1000 + '');
+    })
+    
+    it('should parse "half an hour"', function() {
+        durations.parse('half an hour').digify().should.equal(0.5 * 60 * 60 * 1000 + '');
+    })
+    
+    it('should parse "half of an hour"', function() {
+        durations.parse('half of an hour').digify().should.equal(0.5 * 60 * 60 * 1000 + '');
+    })
+    
+    it('should parse "half hour"', function() {
+        durations.parse('half hour').digify().should.equal(0.5 * 60 * 60 * 1000 + '');
+    })
 })
