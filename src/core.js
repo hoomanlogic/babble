@@ -178,7 +178,7 @@
         passToAssistants: function (input, locale) {
             var preParsedOutput = input, preParsedResults = [];
             for (var i = 0; i < this.assistants.length; i++) {
-                preParsedResults.push(getTranslator(this.assistants[i]).parse(preParsedOutput, locale));
+                preParsedResults.push(get(this.assistants[i]).parse(preParsedOutput, locale));
                 preParsedOutput = preParsedResults[i].digify();
             }
             return {
@@ -200,7 +200,7 @@
      * instances of each translator.
      */
     var translators = {};
-    var registerTranslator = function (name, instance, defaultLocale, supportedLocales) {
+    var register = function (name, instance, defaultLocale, supportedLocales) {
         translators[name] = {
             instance: null,
             defaultLocale: defaultLocale,
@@ -209,13 +209,13 @@
         
         translators[name].instance = new instance();
     };
-    exports.registerTranslator = registerTranslator;
+    exports.register = register;
     
     /**
      * Expose method used for getting a singleton instance 
      * of a translator.
      */
-    var getTranslator = function (name, locale) {
+    var get = function (name, locale) {
         locale = locale || translators[name].instance.locale;
         if (translators[name].supportedLocales.indexOf(locale) === -1) {
             throw new Error('Locale "' + this.locale + '" is not supported by "' + name + '"');
@@ -224,12 +224,12 @@
         translators[name].locale = locale || translators[name].instance.locale;
         return translators[name].instance;
     };
-    exports.getTranslator = getTranslator;
+    exports.get = get;
     
     /**
      * TODO: Describe this
      */
-    var assignTranslator = function (name, speaker) {
+    var assign = function (name, speaker) {
         var event = null, 
             locale = null, 
             onTranslate = null;
@@ -246,9 +246,9 @@
             locale = arguments[3];
         }
         
-        var translator = getTranslator(name, locale);
+        var translator = get(name, locale);
         translator.listen(speaker, event, onTranslate);
     };
-    exports.assignTranslator = assignTranslator;
+    exports.assign = assign;
     
 }(typeof exports === 'undefined' ? this['babelchip'] = this['babelchip'] || {}: exports));

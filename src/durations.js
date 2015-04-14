@@ -292,7 +292,7 @@
                 text: text
             });
             
-            var reDays = / *?(days|day|dys|dy|d)$/gi;
+            var reDays = / *?^(days|day|dys|dy|d)$/gi;
             var reHours = / *?(hours|hour|hrs|hr|h)$/gi;
             var reMinutes = / *?(minutes|minute|mins|min|m)$/gi;
             var reSeconds = / *?(seconds|second|secs|sec|s)$/gi;
@@ -535,6 +535,6 @@
     for (var name in Locales) {
       locales.push(name);
     }
-    core.registerTranslator('durations', DurationTranslator, defaultLocale, locales);
+    core.register('durations', DurationTranslator, defaultLocale, locales);
 
 }(typeof exports === 'undefined' ? this['babelchip'] = this['babelchip'] || {} : exports));

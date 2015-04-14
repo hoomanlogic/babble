@@ -48,7 +48,10 @@
                 'hundred': 100,
                 'thousand': 1000,
                 'million': 1000000,
-                'billion': 1000000000
+                'billion': 1000000000,
+                'tenth': 0.1,
+                'hundredth': 0.01,
+                'thousandth': 0.001,
             },
             /**
              * Joiners define what characters
@@ -197,6 +200,11 @@
         if (matches.length === 0) {
             return new core.ParsedResult(input, []); 
         }
+        
+        var numDigits = function(val) {
+            if (val < 1) return '';
+            return String(val).length;
+        }
 
         var result = [{ kind: 'number', pos: 0, value: 0, text: '', segments: [0] }];
         var resultIndex = 0;
@@ -221,10 +229,10 @@
                 result[resultIndex].pos = matches[i].pos;
             }
 
-            if (previous && result[resultIndex].segments[segmentIndex] < matches[i].value) {
+            if (previous && (numDigits(result[resultIndex].segments[segmentIndex]) < numDigits(matches[i].value) || matches[i].value < 1)) {
 
                 // check previous segments (todo: recursive)
-                if (segmentIndex > 0 && result[resultIndex].segments[segmentIndex - 1] < matches[i].value) {
+                if (segmentIndex > 0 && (result[resultIndex].segments[segmentIndex - 1] < matches[i].value) ) {
 
                     // traverse backwards until the end or sum is greater than current value
                     var segmentsTally = 0;
@@ -296,6 +304,6 @@
     for (var name in Locales) {
       locales.push(name);
     }
-    core.registerTranslator('numbers', NumberTranslator, defaultLocale, locales);
+    core.register('numbers', NumberTranslator, defaultLocale, locales);
 
 }(typeof exports === 'undefined' ? this['babelchip'] = this['babelchip'] || {} : exports));

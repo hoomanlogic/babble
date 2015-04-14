@@ -24,19 +24,27 @@
         <script type="text/javascript" src="../src/durations.js"></script>
         <script type="text/javascript">
             
-            babelchip.assignTranslator('numbers', 'numbersInput', function (result) {
+            /**
+             * This is currently the best practice and should be 
+             * used unless a legitimate reason arises to use
+             * a separate instance of a translator
+             */
+            babelchip.assign('numbers', 'numbersInput', function (result) {
                 var span = document.getElementById('numbersResult');
                 span.innerHTML = result.digify();
                 console.log(result);
             });
             
-            babelchip.assignTranslator('numbers', 'numbersInput2', function (result) {
+            babelchip.assign('numbers', 'numbersInput2', function (result) {
                 var span = document.getElementById('numbersResult2');
                 span.innerHTML = result.digify();
                 console.log(result);
             });
             
-            var durationTranslation = babelchip.getTranslator('durations');
+            /**
+             * This is an outdated way, but still works
+             */
+            var durationTranslation = new babelchip.DurationTranslator();
             durationTranslation.onTranslate = function (result) {
                 var span = document.getElementById('durationsResult');
                 

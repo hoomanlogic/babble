@@ -34,6 +34,10 @@ describe('numbers parse', function() {
 describe('durations parse', function() {
     var durationTranslator = new durations.DurationTranslator();
     
+    it('one hour and thirty minutes', function() {
+        durationTranslator.translate('one hour and thirty minutes').digify().should.equal(90 * 60 * 1000 + '');
+    })
+    
     it('should parse "1hr30min"', function() {
         durationTranslator.translate('1hr30min').digify().should.equal(90 * 60 * 1000 + '');
     })
