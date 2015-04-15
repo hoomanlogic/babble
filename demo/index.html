@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>babelchip</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <style>
+            body {
+                background-color: #1e1e1e;
+                color: #dcdcdc;
+                font-size:   1.3rem;
+                line-height: 1.2rem;
+            }
+            
+            input {
+                width: 50vw;
+            }
+            
+            h1 {
+                color: #B4FF63;
+            }
+            
+            h3 {
+                color: #69B2F0;
+                margin-bottom: 0.4rem;
+                line-height: 1rem;
+            }
+            
+            span {
+                color: #dcdcdc;
+                font-size:   1.3rem;
+                line-height: 1.2rem;
+            }
+            
+            .result {
+                border: 2px solid #dcdcdc;
+                border-radius: 2px;
+                min-height: 1.2rem;
+                width: 50vw;
+            }
+            footer {
+                position: absolute;
+                bottom:  2rem;
+                left:    0;
+                width: 100%;
+                text-align: center;
+                font-size:   1.2rem;
+                line-height: 3rem;
+            }
+            
+            .button {
+                position: relative;
+                display: inline-block;
+                width:  4rem;	
+                height: 4rem;
+                background-size: 100% 100%;
+                background-repeat: no-repeat;
+                opacity: 0.2;
+                cursor: pointer;
+            }
+            .button:hover {
+
+                opacity: 1;
+            }
+            .button + .button {
+
+                margin-left: 0.2rem;
+            }
+            
+            #github   { background-image: url( media/github.svg ); }
+            #twitter  { background-image: url( media/twitter.svg ); }
+            #facebook { background-image: url( media/facebook.svg ); }
+        </style>
+    </head>
+    <body>
+        <h1>babelchip <span>A JavaScript library for building user interfaces that understand humans.</span></h1>
+        
+        <p>With babelchip, you can build input controls that can handle a wide array of user input styles.</p>
+        
+        <div>
+            <h3>numbers <span>eg. one hundred thirty four million twenty five thousand eighty four</span></h3>
+            <input id="numbersInput" type="text"/>
+            
+            <div class="result">
+                <span id="numbersResult"></span>
+            </div>
+            <div class="result">
+                <span id="numbersValues"></span>
+            </div>
+        </div>
+        
+        <div>
+            <h3>durations <span>eg. one day, 12 hours, 1d2h35m, 1:30:12.354</span></h3>
+            <input id="durationsInput" type="text"/>
+            <div class="result">
+                <span id="durationsResult"></span>
+            </div>
+            <div class="result">
+                <span id="durationsValues"></span>
+            </div>
+            <div class="result">
+                <span id="durationsHoomanized"></span>
+            </div>
+        </div>
+        
+        <footer>
+			<div class="button" id="github"></div>
+			<div class="button" id="twitter"></div>
+			<div class="button" id="facebook"></div>
+			<br>
+			Build your own? <a target="_blank" href="https://github.com/hoomanlogic/babelchip" title="Babelchip on GitHub">Get the code</a>.
+		</footer>
+        
+        <script type="text/javascript" src="../dist/core.min.js"></script>
+        <script type="text/javascript" src="../dist/numbers.min.js"></script>
+        <script type="text/javascript" src="../dist/durations.min.js"></script>
+        <script type="text/javascript">
+            
+            /**
+             * This is currently the best practice and should be 
+             * used unless a legitimate reason arises to use
+             * a separate instance of a translator
+             */
+            babelchip.assign('numbers', 'numbersInput', function (result) {
+                document.getElementById('numbersResult').innerHTML = result.digify();
+                document.getElementById('numbersValues').innerHTML = null;
+                
+                if (result.tokens.length> 0) {
+                    var values = [];
+                    result.tokens.forEach(function (item) {
+                        values.push(item.value);
+                    });
+                    document.getElementById('numbersValues').innerHTML = values.join(',');
+                }
+                console.log(result);
+            });
+            
+            babelchip.assign('durations', 'durationsInput', function (result) {
+                document.getElementById('durationsResult').innerHTML = result.digify();
+                document.getElementById('durationsValues').innerHTML = null;
+                
+                if (result.tokens.length > 0) {
+                    var values = [];
+                    var hoomanized = [];
+                    result.tokens.forEach(function (item) {
+                        values.push(item.value.value);
+                        hoomanized.push(item.value.hoomanize());
+                    });
+                    document.getElementById('durationsValues').innerHTML = values.join(',');
+                    document.getElementById('durationsHoomanized').innerHTML = hoomanized.join('<br />');
+                }
+                console.log(result);
+            });
+
+            function makeSocial( id, width, height, url ){
+
+                function go( e ){ window.open(
+
+                    url,
+                    id,
+                    'width='+ width +',height='+ height +',resizable=yes,scrollbars=yes,titlebar=yes,menubar=yes,location=yes'
+                )}
+
+                var el = document.getElementById( id )
+
+                el.addEventListener( 'click', go )
+                el.addEventListener( 'touchend', go )
+            }
+            makeSocial( 'github',   800, 600, 'https://github.com/hoomanlogic/babelchip' )
+            makeSocial( 'twitter',  500, 300, 'https://twitter.com/share?text='+ escape( '#Babelchip by @hoomanlogic is a JavaScript library for building user interfaces that understand humans:' ) +'&url=' + escape( 'http://hoomanlogic.github.io/babelchip' ))
+            makeSocial( 'facebook', 400, 300, 'https://www.facebook.com/sharer/sharer.php?u='+ escape( 'http://hoomanlogic.github.io/babelchip' ))
+            
+        </script>
+    </body>
+</html>
