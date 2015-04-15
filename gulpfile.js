@@ -13,9 +13,8 @@ var onError = function (err) {
 var buildPaths = ['src/*.js'];
 
 // TASK: Build
-gulp.task('build', function () {
+gulp.task('build', ['test'], function () {
     return gulp.src(buildPaths)
-        .pipe(shell('mocha test'))
         .pipe(plumber({
             errorHandler: onError
         }))
@@ -26,7 +25,6 @@ gulp.task('build', function () {
         .pipe(gulp.dest('dist'))
 		.pipe(gulp.dest('../pages/babelchip/dist'));
 });
-
 gulp.task('test', function () {
     return gulp.src('')
         .pipe(shell('mocha test'));

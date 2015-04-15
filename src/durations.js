@@ -225,13 +225,11 @@
             // match #d#h#m format, each part is optional
             // /((\d)+ *?(days|day|dys|dy|d){1})? *?((\d)+ *?(hours|hour|hrs|hr|h){1})? *?((\d)+ *?(minutes|minute|mins|min|m){1})?/gi,
             
-            /(((\d)+|half of an|half of a|half an|half a|half|quarter|an|a) *?(days|day|dys|dy|d){1})?/gi,
-            /(((\d)+|half of an|half of a|half an|half a|half|quarter|an|a) *?(hours|hour|hrs|hr|h){1})?/gi,
-            /(((\d)+|half of an|half of a|half an|half a|half|quarter|an|a) *?(minutes|minute|mins|min|m){1})?/gi,
-            /(((\d)+|half of an|half of a|half an|half a|half|quarter|an|a) *?(seconds|second|secs|sec|s){1})?/gi,
-            /((\d)+ *?(milliseconds|millisecond|millisecs|millisec|msecs|msec|ms){1})?/gi,
-            // match #:#:# format
-            /(\d+)?:?(\d+):(\d+)/gi
+            /(((\d)+|half of an |half of a |half an |half a |half|quarter|an |a ) *?(days|day|dys|dy|d){1})?/gi,
+            /(((\d)+|half of an |half of a |half an |half a |half|quarter|an |a ) *?(hours|hour|hrs|hr|h){1})?/gi,
+            /(((\d)+|half of an |half of a |half an |half a |half|quarter|an |a ) *?(minutes|minute|mins|min|m){1})?/gi,
+            /(((\d)+|half of an |half of a |half an |half a |half|quarter|an |a ) *?(seconds|second|secs|sec|s){1})?/gi,
+            /((\d)+ *?(milliseconds|millisecond|millisecs|millisec|msecs|msec|ms){1})?/gi
         ];
         
         /**
@@ -278,6 +276,19 @@
         /**
          * Add numerical language matches
          */
+        preParsedOutput.replace(/((\d)+:(\d)+(:(\d)+)?(:(\d)+)?(\.(\d){1,3}))?/gi, function () {
+            
+            if (arguments[0].trim() !== '') {
+                insertMatch(matches, {
+                    pos: arguments[arguments.length - 2],
+                    len: arguments[0].length,
+                    value: arguments[0]
+                });
+            }
+        });
+        
+        
+        
         if (matches.length === 0) {
             return new core.ParsedResult(input, [], preParsedOutput, preParsedResults); 
         }
@@ -292,186 +303,104 @@
                 text: text
             });
             
-            var reDays = / *?^(days|day|dys|dy|d)$/gi;
-            var reHours = / *?(hours|hour|hrs|hr|h)$/gi;
-            var reMinutes = / *?(minutes|minute|mins|min|m)$/gi;
-            var reSeconds = / *?(seconds|second|secs|sec|s)$/gi;
-            var reMilliseconds = / *?(milliseconds|millisecond|millisecs|millisec|msecs|msec|ms)$/gi;
-            var reHalf = /(half an|half a|half of an|half of a|half of|half)/gi;
-            var reQuarter = /(quarter of an|quarter of a|quarter of|quarter)/gi;
-            var reOne = /(an|a)/gi;
-            
-
-            
-            
-            text = text.replace(reSeconds, ' * (1000)');
-            text = text.replace(reDays, ' * (24 * 60 * 60 * 1000)');
-            text = text.replace(reHours, ' * (60 * 60 * 1000)');
-            text = text.replace(reMinutes, ' * (60 * 1000)');
-            text = text.replace(reMilliseconds, '');
-            
-            text = text.replace(reHalf, '0.5 ');
-            text = text.replace(reQuarter, '0.25 ');
-            text = text.replace(reOne, '1 ');
-            segments[i].value = parseFloat(eval(text));
-        }
-        
-        var results = [];
-        var prev = null;
-        var next = null;
-        for (var i = 0; i < segments.length; i++) {
-            next = segments[i];
-            if (prev) {
-                var joiner = preParsedOutput.slice(prev.pos + prev.text.length, next.pos);
-                if (locale.timeJoiners.indexOf(joiner.trim()) > -1) {
-                    next.value += prev.value;
-                    next.text = preParsedOutput.slice(prev.pos, next.pos + next.text.length);
-                    next.pos = prev.pos;
-                } else {
-                    results.push(prev);
-                }
-            }
-            prev = segments[i];
-        }
-        results.push(next);
-        
-        for (var i = 0; i < results.length; i++) {
-            results[i].value = new exports.Duration(results[i].value);
-        }
-        
-        /**
-         * Create parsed results object and Bind functions to the parsed results for sugar
-         */
-        return new core.ParsedResult(input, results, preParsedOutput, preParsedResults);
-    };
-    
-                
-    /**
-     * This takes any string, locates groups of 
-     * durations and returns results
-     */
-    exports.parseOld = function (input, locale) {
-
-        /**
-         * Set the locale used for matching
-         * and default to the CurrentLocale
-         * if not specified.
-         */
-        if (locale && Locales[locale]) {
-            locale = Locales[locale];
-        } else {
-            locale = Locales[defaultLocale];   
-        }
-        
-        /**
-         * Run pre-parsing dependencies
-         */
-        var pp = core.preParse();
-        
-        /**
-         * These formats come from a project that used a unique approach to parsing,
-         * splitting whitespaces and building up the string until it finds a match.
-         * This might still be the best way, but trying to avoid that method for now.
-         */
-        
-        var formats = [
-            // match positive integers
-            // /(\d+)/gi, // add this in when in 'expect' mode - a mode where we know in advance that we are getting duration type input
-            // match positive decimal numbers (optional numbers 
-            // after decimal and optional hours nouns)
-            // /(\d+)\.(\d+)?(hours|hour|hrs|hr|h)?/gi,
-            // match #d#h#m format, each part is optional
-            // /((\d)+ *?(days|day|dys|dy|d){1})? *?((\d)+ *?(hours|hour|hrs|hr|h){1})? *?((\d)+ *?(minutes|minute|mins|min|m){1})?/gi,
-            
-            /(((\d)+|half of an|half of a|half an|half a|half|quarter|an|a) *?(days|day|dys|dy|d){1})?/gi,
-            /(((\d)+|half of an|half of a|half an|half a|half|quarter|an|a) *?(hours|hour|hrs|hr|h){1})?/gi,
-            /(((\d)+|half of an|half of a|half an|half a|half|quarter|an|a) *?(minutes|minute|mins|min|m){1})?/gi,
-            /(((\d)+|half of an|half of a|half an|half a|half|quarter|an|a) *?(seconds|second|secs|sec|s){1})?/gi,
-            /((\d)+ *?(milliseconds|millisecond|millisecs|millisec|msecs|msec|ms){1})?/gi,
-            // match #:#:# format
-            /(\d+)?:?(\d+):(\d+)/gi
-        ];
-        
-        /**
-         * Function keeps the matches in order by the position
-         * so processing doesn't have to worry about sorting it
-         */
-        var insertByPosition = function (arr, obj) {
-            if (arr.length === 0 || arr[arr.length - 1].pos < obj.pos) {
-                arr.push(obj);   
-            } else {
-                for (var i = 0; i < arr.length; i++) {
-                    if (arr[i].pos > obj.pos) {
-                        arr.splice(i, 0, obj);
-                        break;
-                    } else if (arr[i].pos === obj.pos && arr[i].len < obj.len) {
-                        arr.splice(i, 1, obj);
-                        break;
+            if (text.indexOf(':') > 0) {
+                var parts = text.split(':');
+                if (parts.length === 2) {
+                    // hours and minutes
+                    segments[i].value = 
+                        (hourInt * parseInt(parts[0])) +
+                        (minuteInt * parseInt(parts[1]));
+                } else if (parts.length === 3) {
+                    var dec = parts[2].split('.');
+                    var whole = dec[0];
+                    if (dec.length > 1) {
+                        if (String(dec[1]).length === 1) {
+                            dec = '.00' + dec[1];
+                        } else if (String(dec[1]).length === 2) {
+                            dec = '.0' + dec[1];
+                        } else {
+                            dec = '.' + dec[1];
+                        }
+                    } else {
+                        dec = '';
                     }
+                    // hours, minutes and seconds
+                    segments[i].value = 
+                        (hourInt * parseInt(parts[0])) +
+                        (minuteInt * parseInt(parts[1])) +
+                        (secondInt * parseFloat(whole + dec));
+                } else if (parts.length === 4) {
+                    var dec = parts[3].split('.');
+                    var whole = dec[0];
+                    if (dec.length > 1) {
+                        if (String(dec[1]).length === 1) {
+                            dec = '.00' + dec[1];
+                        } else if (String(dec[1]).length === 2) {
+                            dec = '.0' + dec[1];
+                        } else {
+                            dec = '.' + dec[1];
+                        }
+                    } else {
+                        dec = '';
+                    }
+                    
+                    // days, hours, minutes and seconds
+                    segments[i].value = 
+                        (dayInt * parseInt(parts[0])) +
+                        (hourInt * parseInt(parts[1])) +
+                        (minuteInt * parseInt(parts[2])) +
+                        (secondInt * parseFloat(whole + dec));
                 }
+            } else {
+
+                var reDays = / *?(days|day|dys|dy|d)$/gi;
+                var reHours = / *?(hours|hour|hrs|hr|h)$/gi;
+                var reMinutes = / *?(minutes|minute|mins|min|m)$/gi;
+                var reSeconds = / *?(seconds|second|secs|sec|s)$/gi;
+                var reMilliseconds = / *?(milliseconds|millisecond|millisecs|millisec|msecs|msec|ms)$/gi;
+                var reHalf = /(half an|half a|half of an|half of a|half of|half)/gi;
+                var reQuarter = /(quarter of an|quarter of a|quarter of|quarter)/gi;
+                var reOne = /(an|a)/gi;
+
+                var number = 0;
+                text = text.replace(reMilliseconds, '');
+                text = text.replace(reSeconds, function () {
+                    number = secondInt;
+                    return '';
+                });
+                text = text.replace(reDays, function () {
+                    number = dayInt;
+                    return '';
+                });
+                text = text.replace(reHours, function () {
+                    number = hourInt;
+                    return '';
+                });
+
+                text = text.replace(reMinutes, function () {
+                    number = minuteInt;
+                    return '';
+                });
+
+                text = text.replace(reHalf, function () { 
+                    number *= 0.5;
+                    return '';
+                });
+                text = text.replace(reQuarter, function () { 
+                    number *= 0.25;
+                    return '';
+                });
+                text = text.replace(reOne, '');
+
+                var multiplier = parseInt(text);
+                if (multiplier.toString() === 'NaN') {
+                    multiplier = 1;
+                }
+                if (number === 0) {
+                    number = 1;   
+                }
+                segments[i].value = multiplier * number;
             }
-        };
-
-        /**
-         * Array for holding number matches
-         */
-        var matches = [];
-
-        /**
-         * Add duration language matches
-         */
-        for (var i = 0; i < formats.length; i++) {
-            preParsedOutput.replace(formats[i], function () {
-                //console.log(arguments);
-                if (arguments[0].trim() !== '') {
-                    insertByPosition(matches, {
-                        pos: arguments[arguments.length - 2],
-                        len: arguments[0].length,
-                        value: arguments[0]
-                    });
-                }
-            });
-        }
-        
-        /**
-         * Add numerical language matches
-         */
-        if (matches.length === 0) {
-            return new core.ParsedResult(input, [], preParsedOutput, preParsedResults); 
-        }
-
-        var segments = [];
-        for (var i = 0; i < matches.length; i++) {
-            var text = preParsedOutput.slice(matches[i].pos, matches[i].pos + matches[i].len);
-            segments.push({ 
-                kind: 'duration', 
-                pos: matches[i].pos, 
-                value: 0, 
-                text: text
-            });
-            
-            var reDays = / *?(days|day|dys|dy|d)$/gi;
-            var reHours = / *?(hours|hour|hrs|hr|h)$/gi;
-            var reMinutes = / *?(minutes|minute|mins|min|m)$/gi;
-            var reSeconds = / *?(seconds|second|secs|sec|s)$/gi;
-            var reMilliseconds = / *?(milliseconds|millisecond|millisecs|millisec|msecs|msec|ms)$/gi;
-            var reHalf = /(half an|half a|half of an|half of a|half of|half)/gi;
-            var reQuarter = /(quarter of an|quarter of a|quarter of|quarter)/gi;
-            var reOne = /(an|a)/gi;
-            
-
-            
-            
-            text = text.replace(reSeconds, ' * (1000)');
-            text = text.replace(reDays, ' * (24 * 60 * 60 * 1000)');
-            text = text.replace(reHours, ' * (60 * 60 * 1000)');
-            text = text.replace(reMinutes, ' * (60 * 1000)');
-            text = text.replace(reMilliseconds, '');
-            
-            text = text.replace(reHalf, '0.5 ');
-            text = text.replace(reQuarter, '0.25 ');
-            text = text.replace(reOne, '1 ');
-            segments[i].value = parseFloat(eval(text));
         }
         
         var results = [];
