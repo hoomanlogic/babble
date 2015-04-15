@@ -43,7 +43,7 @@
         this.digify = digify.bind(this);
     };
 
-    var BaseTranslator = function (locale, onTranslate) {
+    var BaseTranslator = function (onTranslate, locale) {
 
         /**
          * Validate instance
