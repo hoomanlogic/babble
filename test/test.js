@@ -34,6 +34,22 @@ describe('numbers parse', function() {
 describe('durations parse', function() {
     var durationTranslator = new durations.DurationTranslator();
     
+    it('1:30:30', function() {
+        durationTranslator.translate('1:30:30').digify().should.equal(String((90 * 60 * 1000) + 30000));
+    })
+    
+    it('1:30:30.0', function() {
+        durationTranslator.translate('1:30:30.0').digify().should.equal(String((90 * 60 * 1000) + 30000));
+    })
+    
+    it('1:0:0:30', function() {
+        durationTranslator.translate('1:0:0:30').digify().should.equal(String((24 * 60 * 60 * 1000) + 30000));
+    })
+    
+    it('1:0:0:30.0', function() {
+        durationTranslator.translate('1:0:0:30.0').digify().should.equal(String((24 * 60 * 60 * 1000) + 30000));
+    })
+    
     it('one hour and thirty minutes', function() {
         durationTranslator.translate('one hour and thirty minutes').digify().should.equal(90 * 60 * 1000 + '');
     })

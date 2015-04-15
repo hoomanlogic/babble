@@ -276,7 +276,7 @@
         /**
          * Add numerical language matches
          */
-        preParsedOutput.replace(/((\d)+:(\d)+(:(\d)+)?(:(\d)+)?(\.(\d){1,3}))?/gi, function () {
+        preParsedOutput.replace(/((\d)+:(\d)+(:(\d)+)?(:(\d)+)?(\.(\d){1,3})?)/gi, function () {
             
             if (arguments[0].trim() !== '') {
                 insertMatch(matches, {
