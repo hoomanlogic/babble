@@ -1,5 +1,5 @@
 # Babble [![Build Status](https://travis-ci.org/hoomanlogic/babble.svg)](https://travis-ci.org/hoomanlogic/babble)
-Babble is a JavaScript library for building user interfaces that understand humans.
+Babble is a JavaScript library for extending user interfaces that understand humans.
 
 ### Getting Started
 

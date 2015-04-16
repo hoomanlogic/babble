@@ -1,116 +1,19 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html>
     <head>
         <title>Babble</title>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-        <style>
-            body {
-                background-color: #1e1e1e;
-                color: #dcdcdc;
-                font-size:   1.3rem;
-                line-height: 1.2rem;
-            }
-			
-			.centered {
-				max-width: 800px;
-				margin: 0px auto;
-            }
-			
-            
-            h1 {
-				font-size:   6.4rem;
-                color: #B4FF63;
-				margin-top: 1rem;
-				margin-bottom: 2rem;
-            }
-            
-            h3 {
-                color: #69B2F0;
-                margin-bottom: 0.4rem;
-                line-height: 1rem;
-            }
-			
-			.boxy {
-				display: inline-flex;
-			    flex-direction: column;
-			    max-width: 35rem;
-			}
-            
-            span {
-                color: #dcdcdc;
-                font-size:   1.3rem;
-                line-height: 1.2rem;
-            }
-            
-            .result {
-                border: 2px solid #dcdcdc;
-                border-radius: 2px;
-                min-height: 1.2rem;
-            }
-            footer {
-                position: absolute;
-                bottom:  2rem;
-                left:    0;
-                width: 100%;
-                text-align: center;
-                font-size:   1.2rem;
-                line-height: 3rem;
-            }
-            
-            .button {
-                position: relative;
-                display: inline-block;
-                width:  4rem;	
-                height: 4rem;
-                background-size: 100% 100%;
-                background-repeat: no-repeat;
-                opacity: 0.2;
-                cursor: pointer;
-            }
-            .button:hover {
-
-                opacity: 1;
-            }
-            .button + .button {
-
-                margin-left: 0.2rem;
-            }
-            
-			#hoomanlogic   { 
-				position: absolute;
-				left: 20vw;
-                display: inline-block;
-                width:  60rem;	
-                height: 60rem;
-                background-size: 100% 100%;
-                background-repeat: no-repeat;
-				background-image: url( media/hoomanlogic.svg );
-				z-index: -1;
-				opacity: 0.05;
-			}
-			
-			#hoomanlogic-icon   { 
-                display: inline-block;
-                width:  5rem;	
-                height: 5rem;
-                background-size: 100% 100%;
-                background-repeat: no-repeat;
-				background-image: url( media/hoomanlogic.svg );
-			}
-			
-            #github   { background-image: url( media/github.svg ); }
-            #twitter  { background-image: url( media/twitter.svg ); }
-            #facebook { background-image: url( media/facebook.svg ); }
-        </style>
+        <link href="css/boilerstrapalize.min.css" rel="stylesheet" />
+        <link href="css/main.min.css" rel="stylesheet" />
     </head>
     <body>
 		<div id="hoomanlogic"></div>
 		<div class="centered">
-			<h1><div id="hoomanlogic-icon"></div> Babble</h1>
+			<h1><i id="hoomanlogic-icon"></i> Babble</h1>
 			
 			<div class="boxy">
 				<h2>What is Babble?</h2>
-				<p>A JavaScript library for building user interfaces that understand humans.</p>
+				<p>Babble is a JavaScript library for extending user interfaces to better understand humans.</p>
 				<p>With Babble, you can build input controls that can handle a wide array of user input styles.</p>
 			</div>
 			<div class="boxy">
