@@ -12,13 +12,16 @@
             }
 			
 			.centered {
-				max-width: 900px;
+				max-width: 800px;
 				margin: 0px auto;
             }
 			
             
             h1 {
+				font-size:   6.4rem;
                 color: #B4FF63;
+				margin-top: 1rem;
+				margin-bottom: 2rem;
             }
             
             h3 {
@@ -30,7 +33,7 @@
 			.boxy {
 				display: inline-flex;
 			    flex-direction: column;
-			    max-width: 25rem;
+			    max-width: 35rem;
 			}
             
             span {
@@ -86,6 +89,15 @@
 				opacity: 0.05;
 			}
 			
+			#hoomanlogic-icon   { 
+                display: inline-block;
+                width:  5rem;	
+                height: 5rem;
+                background-size: 100% 100%;
+                background-repeat: no-repeat;
+				background-image: url( media/hoomanlogic.svg );
+			}
+			
             #github   { background-image: url( media/github.svg ); }
             #twitter  { background-image: url( media/twitter.svg ); }
             #facebook { background-image: url( media/facebook.svg ); }
@@ -94,14 +106,12 @@
     <body>
 		<div id="hoomanlogic"></div>
 		<div class="centered">
-			<h1>babelchip</h1>
+			<h1><div id="hoomanlogic-icon"></div> Babelchip</h1>
 			
 			<div class="boxy">
-				<h2>What is babelchip</h2>
+				<h2>What is Babelchip?</h2>
 				<p>A JavaScript library for building user interfaces that understand humans.</p>
-			</div>
-			<div class="boxy">
-			<p>With babelchip, you can build input controls that can handle a wide array of user input styles.</p>
+				<p>With babelchip, you can build input controls that can handle a wide array of user input styles.</p>
 			</div>
 			<div class="boxy">
 				<h3>numbers <span>eg. one hundred thirty four million twenty five thousand eighty four</span></h3>
