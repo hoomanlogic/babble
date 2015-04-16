@@ -10,13 +10,18 @@
                 font-size:   1.3rem;
                 line-height: 1.2rem;
             }
-            
-            input {
-                width: 50vw;
+			
+			.centered {
+				max-width: 800px;
+				margin: 0px auto;
             }
+			
             
             h1 {
+				font-size:   6.4rem;
                 color: #B4FF63;
+				margin-top: 1rem;
+				margin-bottom: 2rem;
             }
             
             h3 {
@@ -24,6 +29,12 @@
                 margin-bottom: 0.4rem;
                 line-height: 1rem;
             }
+			
+			.boxy {
+				display: inline-flex;
+			    flex-direction: column;
+			    max-width: 35rem;
+			}
             
             span {
                 color: #dcdcdc;
@@ -35,7 +46,6 @@
                 border: 2px solid #dcdcdc;
                 border-radius: 2px;
                 min-height: 1.2rem;
-                width: 50vw;
             }
             footer {
                 position: absolute;
@@ -66,48 +76,73 @@
                 margin-left: 0.2rem;
             }
             
+			#hoomanlogic   { 
+				position: absolute;
+				left: 20vw;
+                display: inline-block;
+                width:  60rem;	
+                height: 60rem;
+                background-size: 100% 100%;
+                background-repeat: no-repeat;
+				background-image: url( media/hoomanlogic.svg );
+				z-index: -1;
+				opacity: 0.05;
+			}
+			
+			#hoomanlogic-icon   { 
+                display: inline-block;
+                width:  5rem;	
+                height: 5rem;
+                background-size: 100% 100%;
+                background-repeat: no-repeat;
+				background-image: url( media/hoomanlogic.svg );
+			}
+			
             #github   { background-image: url( media/github.svg ); }
             #twitter  { background-image: url( media/twitter.svg ); }
             #facebook { background-image: url( media/facebook.svg ); }
         </style>
     </head>
     <body>
-        <h1>babelchip <span>A JavaScript library for building user interfaces that understand humans.</span></h1>
-        
-        <p>With babelchip, you can build input controls that can handle a wide array of user input styles.</p>
-        
-        <div>
-            <h3>numbers <span>eg. one hundred thirty four million twenty five thousand eighty four</span></h3>
-            <input id="numbersInput" type="text"/>
-            
-            <div class="result">
-                <span id="numbersResult"></span>
-            </div>
-            <div class="result">
-                <span id="numbersValues"></span>
-            </div>
+		<div id="hoomanlogic"></div>
+		<div class="centered">
+			<h1><div id="hoomanlogic-icon"></div> Babelchip</h1>
+			
+			<div class="boxy">
+				<h2>What is Babelchip?</h2>
+				<p>A JavaScript library for building user interfaces that understand humans.</p>
+				<p>With babelchip, you can build input controls that can handle a wide array of user input styles.</p>
+			</div>
+			<div class="boxy">
+				<h3>numbers <span>eg. one hundred thirty four million twenty five thousand eighty four</span></h3>
+				<input id="numbersInput" type="text"/>
+				
+				<div class="result">
+					<span id="numbersResult"></span>
+				</div>
+				<div class="result">
+					<span id="numbersValues"></span>
+				</div>
+			</div>
+			
+			<div class="boxy">
+				<h3>durations <span>eg. one day, 12 hours, 1d2h35m, 1:30:12.354</span></h3>
+				<input id="durationsInput" type="text"/>
+				<div class="result">
+					<span id="durationsResult"></span>
+				</div>
+				<div class="result">
+					<span id="durationsValues"></span>
+				</div>
+				<div class="result">
+					<span id="durationsHoomanized"></span>
+				</div>
+			</div>
         </div>
-        
-        <div>
-            <h3>durations <span>eg. one day, 12 hours, 1d2h35m, 1:30:12.354</span></h3>
-            <input id="durationsInput" type="text"/>
-            <div class="result">
-                <span id="durationsResult"></span>
-            </div>
-            <div class="result">
-                <span id="durationsValues"></span>
-            </div>
-            <div class="result">
-                <span id="durationsHoomanized"></span>
-            </div>
-        </div>
-        
         <footer>
 			<div class="button" id="github"></div>
 			<div class="button" id="twitter"></div>
 			<div class="button" id="facebook"></div>
-			<br>
-			Build your own? <a target="_blank" href="https://github.com/hoomanlogic/babelchip" title="Babelchip on GitHub">Get the code</a>.
 		</footer>
         
         <script type="text/javascript" src="../dist/core.min.js"></script>
@@ -165,9 +200,20 @@
                 el.addEventListener( 'click', go )
                 el.addEventListener( 'touchend', go )
             }
-            makeSocial( 'github',   800, 600, 'https://github.com/hoomanlogic/babelchip' )
-            makeSocial( 'twitter',  500, 300, 'https://twitter.com/share?text='+ escape( '#Babelchip by @hoomanlogic is a JavaScript library for building user interfaces that understand humans:' ) +'&url=' + escape( 'http://hoomanlogic.github.io/babelchip' ))
-            makeSocial( 'facebook', 400, 300, 'https://www.facebook.com/sharer/sharer.php?u='+ escape( 'http://hoomanlogic.github.io/babelchip' ))
+			
+            function makeLink( id, url ){
+
+                function go( e ){ window.location.href = url}
+
+                var el = document.getElementById( id )
+
+                el.addEventListener( 'click', go )
+                el.addEventListener( 'touchend', go )
+            }
+			
+            makeLink( 'github', 'https://github.com/hoomanlogic/babelchip' );
+            makeSocial( 'twitter',  500, 300, 'https://twitter.com/share?text='+ escape( '#Babelchip by @hoomanlogic is a JavaScript library for building user interfaces that understand humans:' ) +'&url=' + escape( 'http://hoomanlogic.github.io/babelchip' ));
+            makeSocial( 'facebook', 400, 300, 'https://www.facebook.com/sharer/sharer.php?u='+ escape( 'http://hoomanlogic.github.io/babelchip' ));
             
         </script>
     </body>
