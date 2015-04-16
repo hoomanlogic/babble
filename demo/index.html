@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>babelchip</title>
+        <title>Babble</title>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
         <style>
             body {
@@ -106,12 +106,12 @@
     <body>
 		<div id="hoomanlogic"></div>
 		<div class="centered">
-			<h1><div id="hoomanlogic-icon"></div> Babelchip</h1>
+			<h1><div id="hoomanlogic-icon"></div> Babble</h1>
 			
 			<div class="boxy">
-				<h2>What is Babelchip?</h2>
+				<h2>What is Babble?</h2>
 				<p>A JavaScript library for building user interfaces that understand humans.</p>
-				<p>With babelchip, you can build input controls that can handle a wide array of user input styles.</p>
+				<p>With Babble, you can build input controls that can handle a wide array of user input styles.</p>
 			</div>
 			<div class="boxy">
 				<h3>numbers <span>eg. one hundred thirty four million twenty five thousand eighty four</span></h3>
@@ -155,7 +155,7 @@
              * used unless a legitimate reason arises to use
              * a separate instance of a translator
              */
-            babelchip.assign('numbers', 'numbersInput', function (result) {
+            babble.assign('numbers', 'numbersInput', function (result) {
                 document.getElementById('numbersResult').innerHTML = result.digify();
                 document.getElementById('numbersValues').innerHTML = null;
                 
@@ -169,7 +169,7 @@
                 console.log(result);
             });
             
-            babelchip.assign('durations', 'durationsInput', function (result) {
+            babble.assign('durations', 'durationsInput', function (result) {
                 document.getElementById('durationsResult').innerHTML = result.digify();
                 document.getElementById('durationsValues').innerHTML = null;
                 
@@ -211,9 +211,9 @@
                 el.addEventListener( 'touchend', go )
             }
 			
-            makeLink( 'github', 'https://github.com/hoomanlogic/babelchip' );
-            makeSocial( 'twitter',  500, 300, 'https://twitter.com/share?text='+ escape( '#Babelchip by @hoomanlogic is a JavaScript library for building user interfaces that understand humans:' ) +'&url=' + escape( 'http://hoomanlogic.github.io/babelchip' ));
-            makeSocial( 'facebook', 400, 300, 'https://www.facebook.com/sharer/sharer.php?u='+ escape( 'http://hoomanlogic.github.io/babelchip' ));
+            makeLink( 'github', 'https://github.com/hoomanlogic/babble' );
+            makeSocial( 'twitter',  500, 300, 'https://twitter.com/share?text='+ escape( '#Babble by @hoomanlogic is a JavaScript library for building user interfaces that understand humans:' ) +'&url=' + escape( 'http://hoomanlogic.github.io/babble' ));
+            makeSocial( 'facebook', 400, 300, 'https://www.facebook.com/sharer/sharer.php?u='+ escape( 'http://hoomanlogic.github.io/babble' ));
             
         </script>
     </body>

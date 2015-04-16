@@ -251,4 +251,4 @@
     };
     exports.assign = assign;
     
-}(typeof exports === 'undefined' ? this['babelchip'] = this['babelchip'] || {}: exports));
+}(typeof exports === 'undefined' ? this['babble'] = this['babble'] || {}: exports));

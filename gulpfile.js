@@ -23,7 +23,7 @@ gulp.task('build', ['test'], function () {
         }))
         .pipe(uglify())
         .pipe(gulp.dest('dist'))
-		.pipe(gulp.dest('../pages/babelchip/dist'));
+		.pipe(gulp.dest('../pages/babble/dist'));
 });
 gulp.task('test', function () {
     return gulp.src('')

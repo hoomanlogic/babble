@@ -439,8 +439,8 @@
         var core = require('./core.js');
         var numbers = require('./numbers.js');
     } else {
-        var core = window['babelchip'];
-        var numbers = window['babelchip'];
+        var core = window['babble'];
+        var numbers = window['babble'];
     }
     
     /**
@@ -466,4 +466,4 @@
     }
     core.register('durations', DurationTranslator, defaultLocale, locales);
 
-}(typeof exports === 'undefined' ? this['babelchip'] = this['babelchip'] || {} : exports));
+}(typeof exports === 'undefined' ? this['babble'] = this['babble'] || {} : exports));

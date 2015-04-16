@@ -281,7 +281,7 @@
     if (typeof require !== 'undefined') {
         var core = require('./core.js');
     } else {
-        var core = window['babelchip'];
+        var core = window['babble'];
     }
 
     /**
@@ -306,4 +306,4 @@
     }
     core.register('numbers', NumberTranslator, defaultLocale, locales);
 
-}(typeof exports === 'undefined' ? this['babelchip'] = this['babelchip'] || {} : exports));
+}(typeof exports === 'undefined' ? this['babble'] = this['babble'] || {} : exports));
