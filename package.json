@@ -1,5 +1,5 @@
 {
-  "name": "babelchip",
+  "name": "babble",
   "version": "1.0.0",
   "description": "A JavaScript library for building user interfaces that understand humans",
   "main": "gulpfile.js",

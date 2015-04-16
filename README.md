@@ -1,5 +1,5 @@
-# Babelchip [![Build Status](https://travis-ci.org/hoomanlogic/babelchip.svg)](https://travis-ci.org/hoomanlogic/babelchip)
-Babelchip is a JavaScript library for building user interfaces that understand humans.
+# Babble [![Build Status](https://travis-ci.org/hoomanlogic/babble.svg)](https://travis-ci.org/hoomanlogic/babble)
+Babble is a JavaScript library for building user interfaces that understand humans.
 
 ### Getting Started
 
