@@ -173,7 +173,7 @@
              * used unless a legitimate reason arises to use
              * a separate instance of a translator
              */
-            babelchip.assign('numbers', 'numbersInput', function (result) {
+            babble.assign('numbers', 'numbersInput', function (result) {
                 document.getElementById('numbersResult').innerHTML = result.digify();
                 document.getElementById('numbersValues').innerHTML = null;
                 
@@ -187,7 +187,7 @@
                 console.log(result);
             });
             
-            babelchip.assign('durations', 'durationsInput', function (result) {
+            babble.assign('durations', 'durationsInput', function (result) {
                 document.getElementById('durationsResult').innerHTML = result.digify();
                 document.getElementById('durationsValues').innerHTML = null;
                 
