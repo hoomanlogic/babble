@@ -398,6 +398,12 @@
         }
         
         var info = [];
+        if (this.years) {
+            info.push(this.years + ' ' + locale.formatNoun(locale.year.full, this.years));   
+        }
+        if (unitOfSpecificity === 'days') {
+            return info.join(', ');
+        }
         if (this.days) {
             info.push(this.days + ' ' + locale.formatNoun(locale.day.full, this.days));   
         }
@@ -478,7 +484,7 @@
             // /(\d+)\.(\d+)?(hours|hour|hrs|hr|h)?/gi,
             // match #d#h#m format, each part is optional
             // /((\d)+ *?(days|day|dys|dy|d){1})? *?((\d)+ *?(hours|hour|hrs|hr|h){1})? *?((\d)+ *?(minutes|minute|mins|min|m){1})?/gi,
-            
+            /(((\d)+|half of an |half of a |half an |half a |half|quarter|an |a ) *?(years|year|yrs|yr|y){1})?/gi,
             /(((\d)+|half of an |half of a |half an |half a |half|quarter|an |a ) *?(days|day|dys|dy|d){1})?/gi,
             /(((\d)+|half of an |half of a |half an |half a |half|quarter|an |a ) *?(hours|hour|hrs|hr|h){1})?/gi,
             /(((\d)+|half of an |half of a |half an |half a |half|quarter|an |a ) *?(minutes|minute|mins|min|m){1})?/gi,
@@ -607,6 +613,7 @@
                 }
             } else {
 
+                var reYears = / *?(years|year|yrs|yr|y)$/gi;
                 var reDays = / *?(days|day|dys|dy|d)$/gi;
                 var reHours = / *?(hours|hour|hrs|hr|h)$/gi;
                 var reMinutes = / *?(minutes|minute|mins|min|m)$/gi;
@@ -620,6 +627,10 @@
                 text = text.replace(reMilliseconds, '');
                 text = text.replace(reSeconds, function () {
                     number = secondInt;
+                    return '';
+                });
+                text = text.replace(reYears, function () {
+                    number = yearInt;
                     return '';
                 });
                 text = text.replace(reDays, function () {
@@ -979,6 +990,7 @@
                 'eighteen': 18,
                 'nineteen': 19,
                 'twenty': 20,
+                'score': 20,
                 'thirty': 30,
                 'forty': 40,
                 'fifty': 50,
