@@ -38,6 +38,7 @@
                 'eighteen': 18,
                 'nineteen': 19,
                 'twenty': 20,
+                'score': 20,
                 'thirty': 30,
                 'forty': 40,
                 'fifty': 50,

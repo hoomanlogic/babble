@@ -1,56 +1,72 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html>
     <head>
         <title>Babble</title>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-        <link href="css/boilerstrapalize.min.css" rel="stylesheet" />
-        <link href="css/main.min.css" rel="stylesheet" />
+		<link rel="apple-touch-icon" sizes="57x57" href="apple-icon-57x57.png">
+		<link rel="apple-touch-icon" sizes="60x60" href="apple-icon-60x60.png">
+		<link rel="apple-touch-icon" sizes="72x72" href="apple-icon-72x72.png">
+		<link rel="apple-touch-icon" sizes="76x76" href="apple-icon-76x76.png">
+		<link rel="apple-touch-icon" sizes="114x114" href="apple-icon-114x114.png">
+		<link rel="apple-touch-icon" sizes="120x120" href="apple-icon-120x120.png">
+		<link rel="apple-touch-icon" sizes="144x144" href="apple-icon-144x144.png">
+		<link rel="apple-touch-icon" sizes="152x152" href="apple-icon-152x152.png">
+		<link rel="apple-touch-icon" sizes="180x180" href="apple-icon-180x180.png">
+		<link rel="icon" type="image/png" sizes="192x192" href="android-icon-192x192.png">
+		<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+		<link rel="icon" type="image/png" sizes="96x96" href="favicon-96x96.png">
+		<link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+		<link rel="manifest" href="manifest.json">
+		<meta name="msapplication-TileColor" content="#ffffff">
+		<meta name="msapplication-TileImage" content="/ms-icon-144x144.png">
+		<meta name="theme-color" content="#ffffff">
+		<link href="favicon.ico" rel="shortcut icon" type="image/x-icon" />
+        <link href="css/style.min.css" rel="stylesheet" />
     </head>
     <body>
-		<div id="hoomanlogic"></div>
-		<div class="centered">
-			<h1><i id="hoomanlogic-icon"></i> Babble</h1>
-			
-			<div class="boxy">
-				<h2>What is Babble?</h2>
-				<p>Babble is a JavaScript library for extending user interfaces to better understand humans.</p>
-				<p>With Babble, you can build input controls that can handle a wide array of user input styles.</p>
-			</div>
-			<div class="boxy">
-				<h3>numbers <span>eg. one hundred thirty four million twenty five thousand eighty four</span></h3>
-				<input id="numbersInput" type="text"/>
-				
-				<div class="result">
-					<span id="numbersResult"></span>
-				</div>
-				<div class="result">
-					<span id="numbersValues"></span>
-				</div>
-			</div>
-			
-			<div class="boxy">
-				<h3>durations <span>eg. one day, 12 hours, 1d2h35m, 1:30:12.354</span></h3>
-				<input id="durationsInput" type="text"/>
-				<div class="result">
-					<span id="durationsResult"></span>
-				</div>
-				<div class="result">
-					<span id="durationsValues"></span>
-				</div>
-				<div class="result">
-					<span id="durationsHoomanized"></span>
-				</div>
-			</div>
+		<i id="hoomanlogic"></i>
+                <div class="social">
+                    <div class="button" id="github"></div>
+                    <div class="button" id="twitter"></div>
+                    <div class="button" id="facebook"></div>
+                </div>
+        <div>
+            <div class="centered">
+
+                <h1><i id="hoomanlogic-icon"></i> Babble</h1>
+                <div class="flex">
+                    <h2>What is Babble?</h2>
+                    <p>Babble is a JavaScript library for extending user interfaces to better understand humans.</p>
+                    <p>Babble follows the <a href="http://en.wikipedia.org/wiki/Single_responsibility_principle">single responsibility principle</a> by designing small modular parsers that translate a specific context and defer to other parsers to help make sense of the input. For example, DurationsTranslator will first pass the input to the NumbersTranslator.</p>
+                </div>
+                <div class="flex">
+                    <h3>Numbers</h3>
+                    <textarea id="numbersInput" rows="3">Four score and seven years ago our fathers brought forth on this continent, a new nation, conceived in Liberty, and dedicated to the proposition that all men are created equal.</textarea>
+
+                    <div class="result">
+                        <span id="numbersResult"></span>
+                    </div>
+                    <div class="result">
+                        <span id="numbersValues"></span>
+                    </div>
+                </div>
+                <div class="flex">
+                    <h3>Durations</h3>
+                    <textarea id="durationsInput" rows="3">Four score and seven years ago our fathers brought forth on this continent, a new nation, conceived in Liberty, and dedicated to the proposition that all men are created equal.</textarea>
+                    <div class="result">
+                        <span id="durationsResult"></span>
+                    </div>
+                    <div class="result">
+                        <span id="durationsValues"></span>
+                    </div>
+                    <div class="result">
+                        <span id="durationsHoomanized"></span>
+                    </div>
+                </div>
+            </div>
         </div>
-        <footer>
-			<div class="button" id="github"></div>
-			<div class="button" id="twitter"></div>
-			<div class="button" id="facebook"></div>
-		</footer>
         
-        <script type="text/javascript" src="../dist/core.min.js"></script>
-        <script type="text/javascript" src="../dist/numbers.min.js"></script>
-        <script type="text/javascript" src="../dist/durations.min.js"></script>
+        <script type="text/javascript" src="js/babble.min.js"></script>
         <script type="text/javascript">
             
             /**
@@ -58,7 +74,7 @@
              * used unless a legitimate reason arises to use
              * a separate instance of a translator
              */
-            babble.assign('numbers', 'numbersInput', function (result) {
+            var onNumbersInput = function (result) {
                 document.getElementById('numbersResult').innerHTML = result.digify();
                 document.getElementById('numbersValues').innerHTML = null;
                 
@@ -70,9 +86,11 @@
                     document.getElementById('numbersValues').innerHTML = values.join(',');
                 }
                 console.log(result);
-            });
+            };
             
-            babble.assign('durations', 'durationsInput', function (result) {
+            babble.assign('numbers', 'numbersInput', onNumbersInput);
+            
+            var onDurationsInput = function (result) {
                 document.getElementById('durationsResult').innerHTML = result.digify();
                 document.getElementById('durationsValues').innerHTML = null;
                 
@@ -87,7 +105,13 @@
                     document.getElementById('durationsHoomanized').innerHTML = hoomanized.join('<br />');
                 }
                 console.log(result);
-            });
+            };
+            babble.assign('durations', 'durationsInput', onDurationsInput);
+            
+            // demonstrate cool factor
+            onNumbersInput(babble.get('numbers').translate('Four score and seven years ago our fathers brought forth on this continent, a new nation, conceived in Liberty, and dedicated to the proposition that all men are created equal.'));
+            
+            onDurationsInput(babble.get('durations').translate('Four score and seven years ago our fathers brought forth on this continent, a new nation, conceived in Liberty, and dedicated to the proposition that all men are created equal.'));
 
             function makeSocial( id, width, height, url ){
 
