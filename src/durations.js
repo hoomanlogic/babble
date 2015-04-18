@@ -201,6 +201,176 @@
         return this.value;
     }
 
+    /**
+     * Return whether name is variation of millenium
+     * @param {string} A recognized duration name
+     */
+    var isMillennium = function (name, locale) {
+        if (locale.millennium.full.indexOf(name) > -1) {
+            return true;
+        }
+        return false;
+    };
+
+    /**
+     * Return whether name is variation of century
+     * @param {string} A recognized duration name
+     */
+    var isCentury = function (name, locale) {
+        if (locale.century.full.indexOf(name) > -1) {
+            return true;
+        }
+        return false;
+    };
+
+    /**
+     * Return whether name is variation of decade
+     * @param {string} A recognized duration name
+     */
+    var isDecade = function (name, locale) {
+        if (locale.decade.full.indexOf(name) > -1) {
+            return true;
+        }
+        return false;
+    };
+
+    /**
+     * Return whether name is variation of year
+     * @param {string} A recognized duration name
+     */
+    var isYear = function (name, locale) {
+        if (locale.year.full.indexOf(name) > -1) {
+            return true;
+        }
+        if (locale.year.short.indexOf(name) > -1) {
+            return true;
+        }
+        if (locale.year.symbol.indexOf(name) > -1) {
+            return true;
+        }
+        return false;
+    };
+
+    /**
+     * Return whether name is variation of day
+     * @param {string} A recognized duration name
+     */
+    var isDay = function (name, locale) {
+        if (locale.day.full.indexOf(name) > -1) {
+            return true;
+        }
+        if (locale.day.short.indexOf(name) > -1) {
+            return true;
+        }
+        if (locale.day.symbol.indexOf(name) > -1) {
+            return true;
+        }
+        return false;
+    };
+
+    /**
+     * Return whether name is variation of hour
+     * @param {string} A recognized duration name
+     */
+    var isHour = function (name, locale) {
+        if (locale.hour.full.indexOf(name) > -1) {
+            return true;
+        }
+        if (locale.hour.short.indexOf(name) > -1) {
+            return true;
+        }
+        if (locale.hour.symbol.indexOf(name) > -1) {
+            return true;
+        }
+        return false;
+    };
+
+    /**
+     * Return whether name is variation of minute
+     * @param {string} A recognized duration name
+     */
+    var isMinute = function (name, locale) {
+        if (locale.minute.full.indexOf(name) > -1) {
+            return true;
+        }
+        if (locale.minute.short.indexOf(name) > -1) {
+            return true;
+        }
+        if (locale.minute.symbol.indexOf(name) > -1) {
+            return true;
+        }
+        return false;
+    };
+
+    /**
+     * Return whether name is variation of second
+     * @param {string} A recognized duration name
+     */
+    var isSecond = function (name, locale) {
+        if (locale.second.full.indexOf(name) > -1) {
+            return true;
+        }
+        if (locale.second.short.indexOf(name) > -1) {
+            return true;
+        }
+        if (locale.second.symbol.indexOf(name) > -1) {
+            return true;
+        }
+        return false;
+    };
+
+    /**
+     * Return whether name is variation of millisecond
+     * @param {string} A recognized duration name
+     */
+    var isMillisecond = function (name, locale) {
+        if (locale.millisecond.full.indexOf(name) > -1) {
+            return true;
+        }
+        if (locale.millisecond.short.indexOf(name) > -1) {
+            return true;
+        }
+        if (locale.millisecond.symbol.indexOf(name) > -1) {
+            return true;
+        }
+        return false;
+    };
+
+    /**
+     * Return duration value in milliseconds
+     * @param {string} A recognized duration name
+     */
+    var getValue = function (name, locale) {
+
+        if (isMillennium(name, locale)) {
+            return millenniumInt;   
+        }
+        if (isCentury(name, locale)) {
+            return centuryInt;   
+        }
+        if (isDecade(name, locale)) {
+            return decadeInt;   
+        }
+        if (isYear(name, locale)) {
+            return yearInt;   
+        }
+        if (isDay(name, locale)) {
+            return dayInt;
+        }
+        if (isHour(name, locale)) {
+            return hourInt;   
+        }
+        if (isMinute(name, locale)) {
+            return minuteInt;
+        }
+        if (isSecond(name, locale)) {
+            return secondInt;
+        }
+        if (isMillisecond(name, locale)) {
+            return 1;
+        }
+        throw new Error('Invalid duration name');
+    };
     
     /**
      * This takes any string, locates groups of 
@@ -218,29 +388,11 @@
         } else {
             locale = Locales[defaultLocale];
         }
-        
+
         /**
-         * These formats come from a project that used a unique approach to parsing,
-         * splitting whitespaces and building up the string until it finds a match.
-         * This might still be the best way, but trying to avoid that method for now.
+         * Build list of duration words
+         * for use in regular expression
          */
-        
-        var formats = [
-            // match positive integers
-            // /(\d+)/gi, // add this in when in 'expect' mode - a mode where we know in advance that we are getting duration type input
-            // match positive decimal numbers (optional numbers 
-            // after decimal and optional hours nouns)
-            // /(\d+)\.(\d+)?(hours|hour|hrs|hr|h)?/gi,
-            // match #d#h#m format, each part is optional
-            // /((\d)+ *?(days|day|dys|dy|d){1})? *?((\d)+ *?(hours|hour|hrs|hr|h){1})? *?((\d)+ *?(minutes|minute|mins|min|m){1})?/gi,
-            /(((\d)+|half of an |half of a |half an |half a |half|quarter|an |a ) *?(years|year|yrs|yr|y){1})?/gi,
-            /(((\d)+|half of an |half of a |half an |half a |half|quarter|an |a ) *?(days|day|dys|dy|d){1})?/gi,
-            /(((\d)+|half of an |half of a |half an |half a |half|quarter|an |a ) *?(hours|hour|hrs|hr|h){1})?/gi,
-            /(((\d)+|half of an |half of a |half an |half a |half|quarter|an |a ) *?(minutes|minute|mins|min|m){1})?/gi,
-            /(((\d)+|half of an |half of a |half an |half a |half|quarter|an |a ) *?(seconds|second|secs|sec|s){1})?/gi,
-            /((\d)+ *?(milliseconds|millisecond|millisecs|millisec|msecs|msec|ms){1})?/gi
-        ];
-        
         var names = []
             .concat(locale.millennium.full)
             .concat(locale.century.full)
@@ -263,136 +415,6 @@
             .concat(locale.minute.symbol)
             .concat(locale.second.symbol)
             .concat(locale.millisecond.symbol);
-        
-        var getValue = function (name) {
-            var isMillennium = function (name) {
-                if (locale.millennium.full.indexOf(name) > -1) {
-                    return true;
-                }
-                return false;
-            };
-            
-            var isCentury = function (name) {
-                if (locale.century.full.indexOf(name) > -1) {
-                    return true;
-                }
-                return false;
-            };
-            
-            var isDecade = function (name) {
-                if (locale.decade.full.indexOf(name) > -1) {
-                    return true;
-                }
-                return false;
-            };
-            
-            var isYear = function (name) {
-                if (locale.year.full.indexOf(name) > -1) {
-                    return true;
-                }
-                if (locale.year.short.indexOf(name) > -1) {
-                    return true;
-                }
-                if (locale.year.symbol.indexOf(name) > -1) {
-                    return true;
-                }
-                return false;
-            };
-            
-            var isDay = function (name) {
-                if (locale.day.full.indexOf(name) > -1) {
-                    return true;
-                }
-                if (locale.day.short.indexOf(name) > -1) {
-                    return true;
-                }
-                if (locale.day.symbol.indexOf(name) > -1) {
-                    return true;
-                }
-                return false;
-            };
-
-            var isHour = function (name) {
-                if (locale.hour.full.indexOf(name) > -1) {
-                    return true;
-                }
-                if (locale.hour.short.indexOf(name) > -1) {
-                    return true;
-                }
-                if (locale.hour.symbol.indexOf(name) > -1) {
-                    return true;
-                }
-                return false;
-            };
-            
-            var isMinute = function (name) {
-                if (locale.minute.full.indexOf(name) > -1) {
-                    return true;
-                }
-                if (locale.minute.short.indexOf(name) > -1) {
-                    return true;
-                }
-                if (locale.minute.symbol.indexOf(name) > -1) {
-                    return true;
-                }
-                return false;
-            };
-            
-            var isSecond = function (name) {
-                if (locale.second.full.indexOf(name) > -1) {
-                    return true;
-                }
-                if (locale.second.short.indexOf(name) > -1) {
-                    return true;
-                }
-                if (locale.second.symbol.indexOf(name) > -1) {
-                    return true;
-                }
-                return false;
-            };
-            
-            var isMillisecond = function (name) {
-                if (locale.millisecond.full.indexOf(name) > -1) {
-                    return true;
-                }
-                if (locale.millisecond.short.indexOf(name) > -1) {
-                    return true;
-                }
-                if (locale.millisecond.symbol.indexOf(name) > -1) {
-                    return true;
-                }
-                return false;
-            };
-            
-            if (isMillennium(name)) {
-                return millenniumInt;   
-            }
-            if (isCentury(name)) {
-                return centuryInt;   
-            }
-            if (isDecade(name)) {
-                return decadeInt;   
-            }
-            if (isYear(name)) {
-                return yearInt;   
-            }
-            if (isDay(name)) {
-                return dayInt;
-            }
-            if (isHour(name)) {
-                return hourInt;   
-            }
-            if (isMinute(name)) {
-                return minuteInt;
-            }
-            if (isSecond(name)) {
-                return secondInt;
-            }
-            if (isMillisecond(name)) {
-                return 1;
-            }
-            throw new Error('Invalid duration name');
-        };
 
 
         /**
@@ -409,17 +431,17 @@
         
         //http://leaverou.github.io/regexplained/
         var match;
-        // use negative lookahead to avoid matching partial words 
+        // use positive lookahead to only match full words (\b|\d) 
         // without consuming a digit that could otherwise be a part
         // of the following match
-        var re = new RegExp('(\\b|\\d)(' + names.join('|') + ')(?![a-zA-Z])', 'gi')
+        var re = new RegExp('(\\b|\\d)(' + names.join('|') + ')(?:(\\b|\\d))', 'gi')
         while ((match = re.exec(input)) !== null) {
             var truePos = match.index + (match[1] || '').length;
-            core.insertMatch(matches, {
+            core.insertToken(matches, {
                 kind: 'duration.name',
                 pos: truePos,
                 text: match[2],
-                value: getValue(match[2])
+                value: getValue(match[2], locale)
             });
         };
         
@@ -430,7 +452,7 @@
         re = /((\d)+:(\d)+(:(\d)+)?(:(\d)+)?(\.(\d){1,3})?)/gi;
         while ((match = re.exec(input)) !== null) {
             if (arguments[0].trim() !== '') {
-                core.insertMatch(matches, {
+                core.insertToken(matches, {
                     kind: 'duration.full',
                     pos: match.index,
                     text: match[0],
@@ -439,33 +461,7 @@
             }
         };
         
-        /**
-         * Get token closest to current match that is 
-         * between the previous and current match.
-         * As always, a collection of tokens is assumed 
-         * to already be ordered by pos prop.
-         */
-        var getTokenModifier = function (tokens, match, previousMatch) {
-            
-            var lowerBound = 0;
-            var upperBound = match.pos;
-            if (typeof previousMatch !== 'undefined' && previousMatch !== null) {
-                lowerBound = previousMatch.pos + previousMatch.text.length;
-            }
-            
-            var i = 0,
-                token = null;
-            
-            for (var i = 0; i < tokens.length; i++) {
-                if (lowerBound <= tokens[i].pos && tokens[i].pos < upperBound) {
-                    token = tokens[i];
-                } else if (tokens[i].pos >= upperBound) {
-                    break;   
-                }
-            }
-            
-            return token;
-        }
+
         
         if (matches.length === 0) {
             return new core.ParsedResult(input, [], preParsedOutput, preParsedResults); 
@@ -507,7 +503,7 @@
             /**
              * Find number token that modifies this duration match
              */
-            var numToken = getTokenModifier(preParsedResults['numbers'].tokens, matches[i], previousMatch);
+            var numToken = core.getTokenModifier(preParsedResults['numbers'].tokens, matches[i], previousMatch);
             
             /**
              * This match segment has no modifier

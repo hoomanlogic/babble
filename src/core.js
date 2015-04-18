@@ -6,19 +6,6 @@
     'use strict';
     
     /**
-     * This takes any string, locates groups of 
-     * spelled out numbers and converts them to digits
-     * @return {number} Returns the processed input string.
-     */
-    var digify = function () {
-        var input = this.preParsedOutput || this.input;
-        for (var i = 0; i < this.tokens.length; i++) {
-            input = input.replace(this.tokens[i].text, toStringIfExists(this.tokens[i].value));
-        }
-        return input;
-    };
-    
-    /**
      * Returns the given object's toString representation
      * if it is defined, otherwise returns the given object.
      * @param {object} The object to get a string if toString exists.
@@ -31,12 +18,64 @@
             return obj;   
         }
     };
+
+    /**
+     * TODO: Describe this
+     */
+    var assign = function (name, speaker) {
+        var event = null, 
+            locale = null, 
+            onTranslate = null;
+        
+        if (arguments.length < 3 || typeof arguments[arguments.length - 1] !== 'function') {
+            throw new TypeError('Unexpected number of arguments');   
+        }
+        
+        onTranslate = arguments[arguments.length - 1];
+        if (arguments.length > 3) {
+            event = arguments[2];
+        }
+        if (arguments.length > 4) {
+            locale = arguments[3];
+        }
+        
+        var translator = get(name, locale);
+        translator.listen(speaker, event, onTranslate);
+    };
+
+    /**
+     * Get token closest to current match that is 
+     * between the previous and current match.
+     * As always, a collection of tokens is assumed 
+     * to already be ordered by pos prop.
+     */
+    var getTokenModifier = function (tokens, match, previousMatch) {
+
+        var lowerBound = 0;
+        var upperBound = match.pos;
+        if (typeof previousMatch !== 'undefined' && previousMatch !== null) {
+            lowerBound = previousMatch.pos + previousMatch.text.length;
+        }
+
+        var i = 0,
+            token = null;
+
+        for (var i = 0; i < tokens.length; i++) {
+            if (lowerBound <= tokens[i].pos && tokens[i].pos < upperBound) {
+                token = tokens[i];
+            } else if (tokens[i].pos >= upperBound) {
+                break;   
+            }
+        }
+
+        return token;
+    };
     
     /**
      * Function keeps the matches in order by the position
      * so processing doesn't have to worry about sorting it
      */
-    var insertMatch = function (arr, obj) {
+    var insertToken = function (arr, obj) {
         if (arr.length === 0 || arr[arr.length - 1].pos < obj.pos) {
             arr.push(obj);   
         } else {
@@ -60,8 +99,34 @@
         this.tokens = tokens;
         this.preParsedOutput = preParsedOutput || null;
         this.preParsedResults = preParsedResults || null;
-        this.digify = digify.bind(this);
     };
+    
+    ParsedResult.prototype = {
+        /**
+         * This takes any string, locates groups of 
+         * spelled out numbers and converts them to digits
+         * @return {number} Returns the processed input string.
+         */
+        digify: function () {
+            var input = this.preParsedOutput || this.input;
+            for (var i = 0; i < this.tokens.length; i++) {
+                input = input.replace(this.tokens[i].text, toStringIfExists(this.tokens[i].value));
+            }
+            return input;
+        }
+     };
+    
+    /**
+     * Tokens are the gold nuggets of lexical analysis
+     */
+    var Token = function (value, kind, pos, text, tokens, certainty) {
+        this.value = value;
+        this.kind = kind;
+        this.pos = pos;
+        this.text = text;
+        this.tokens = tokens || [];
+        this.certainty = certainty || 0;
+    }
 
     var BaseTranslator = function (onTranslate, locale) {
 
@@ -214,6 +279,7 @@
      */
     exports.ParsedResult = ParsedResult;
     exports.BaseTranslator = BaseTranslator;
+    exports.Token = Token;
     
     /**
      * Expose method used for registering translators with
@@ -247,35 +313,10 @@
     };
     exports.get = get;
     
-    /**
-     * TODO: Describe this
-     */
-    var assign = function (name, speaker) {
-        var event = null, 
-            locale = null, 
-            onTranslate = null;
-        
-        if (arguments.length < 3 || typeof arguments[arguments.length - 1] !== 'function') {
-            throw new TypeError('Unexpected number of arguments');   
-        }
-        
-        onTranslate = arguments[arguments.length - 1];
-        if (arguments.length > 3) {
-            event = arguments[2];
-        }
-        if (arguments.length > 4) {
-            locale = arguments[3];
-        }
-        
-        var translator = get(name, locale);
-        translator.listen(speaker, event, onTranslate);
-    };
     exports.assign = assign;
+
+    exports.getTokenModifier = getTokenModifier;
     
-    exports.insertMatch = insertMatch;
-    
-    exports.theSpaceBetween = function(input, p1, l1, p2) {
-        return input.slice(p1 + l1, p2);
-    }
+    exports.insertToken = insertToken;
     
 }(typeof exports === 'undefined' ? this['babble'] = this['babble'] || {}: exports));

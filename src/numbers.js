@@ -19,6 +19,7 @@
             'numbers': {
                 'half': 0.5,
                 'quarter': 0.25,
+                'qtr': 0.25,
                 'zero': 0,
                 'one': 1,
                 'two': 2,
@@ -50,7 +51,11 @@
                 'ninety': 90,
                 'hundred': 100,
                 'thousand': 1000,
+                'half-a-mil': 500000,
+                'half-a-mill': 500000,
                 'million': 1000000,
+                'half-a-bil': 500000000,
+                'half-a-bill': 500000000,
                 'billion': 1000000000,
                 'tenth': 0.1,
                 'hundredth': 0.01,
@@ -64,7 +69,9 @@
                 '',
                 ' ',
                 ' and ',
-                '-'
+                '-',
+                ' a ',
+                ' of a '
             ],
             /**
              * Flippers define what characters between two number-words will
@@ -125,6 +132,10 @@
         ]
     };
     
+    var getValue = function (name, locale) {
+        return locale.numbers[name.toLowerCase()] || parseFloat(name);
+    }
+    
     /**
      * This takes any string, locates groups of 
      * spelled out numbers and returns results
@@ -162,11 +173,12 @@
         
         var match;
         while ((match = re.exec(input)) !== null) {
-            core.insertMatch(matches, {
-                pos: match.index,
-                len: match[0].length,
-                value: locale.numbers[match[0].toLowerCase()] || parseFloat(match[0])
-            });
+            core.insertToken(matches, new core.Token(
+                getValue(match[0], locale), 
+                'number.segment', 
+                match.index, 
+                match[0]
+            ));
         };
         
         /**
@@ -174,11 +186,12 @@
          */
         re = /([+-]{0,1}\d+)/gi;
         while ((match = re.exec(input)) !== null) {
-            core.insertMatch(matches, {
-                pos: match.index,
-                len: match[0].length,
-                value: parseFloat(match[0])
-            });
+            core.insertToken(matches, new core.Token(
+                getValue(match[0], locale), 
+                'number.segment', 
+                match.index, 
+                match[0]
+            ));
         };
         
         /**
@@ -192,9 +205,17 @@
         var numDigits = function(val) {
             if (val < 1) return '';
             return String(val).length;
-        }
+        };
+        
+        var tallySegments = function (segments) {
+            var value = 0;
+            segments.forEach( function (segment) {
+                value += segment.value;  
+            });
+            return value;
+        };
 
-        var result = [{ kind: 'number', pos: 0, value: 0, text: '', segments: [0] }];
+        var result = [new core.Token(0, 'number', 0, '', [new core.Token(0, 'number.segment', 0, '')])];
         var resultIndex = 0;
         var segmentIndex = 0;
         var previous = null;
@@ -203,11 +224,11 @@
             // first lets check to see what characters
             // are joining this result with the last result
             if (previous) {
-                var joiner = input.slice(previous.pos + previous.len, matches[i].pos);
+                var joiner = input.slice(previous.pos + previous.text.length, matches[i].pos);
                 if (locale.joiners.indexOf(joiner) === -1) {
-                    result[resultIndex].value = result[resultIndex].segments.reduce(function (prev, next) { return (prev || 0) + next; });
-                    result[resultIndex].text = input.slice(result[resultIndex].pos, previous.pos + previous.len);
-                    result.push({ kind: 'number', pos: 0, value: 0, text: '', segments: [0] });
+                    result[resultIndex].value = tallySegments(result[resultIndex].tokens);
+                    result[resultIndex].text = input.slice(result[resultIndex].pos, previous.pos + previous.text.length);
+                    result.push(new core.Token(0, 'number', 0, '', [new core.Token(0, 'number.segment', 0, '')]));
                     resultIndex++;
                     segmentIndex = 0;
                     previous = null;
@@ -217,45 +238,47 @@
                 result[resultIndex].pos = matches[i].pos;
             }
 
-            if (previous && (numDigits(result[resultIndex].segments[segmentIndex]) < numDigits(matches[i].value) || matches[i].value < 1)) {
+            if (previous && (numDigits(result[resultIndex].tokens[segmentIndex].value) < numDigits(matches[i].value) || matches[i].value < 1)) {
 
-                // check previous segments (todo: recursive)
-                if (segmentIndex > 0 && (result[resultIndex].segments[segmentIndex - 1] < matches[i].value) ) {
+                // check previous segments
+                if (segmentIndex > 0 && (result[resultIndex].tokens[segmentIndex - 1].value < matches[i].value) ) {
 
                     // traverse backwards until the end or sum is greater than current value
                     var segmentsTally = 0;
                     var splitter = 0;
-                    for (var j = result[resultIndex].segments.length - 1; j > -1; j--) {
-                        if (segmentsTally + result[resultIndex].segments[j] > matches[i].value) {
+                    for (var j = result[resultIndex].tokens.length - 1; j > -1; j--) {
+                        if (segmentsTally + result[resultIndex].tokens[j].value > matches[i].value) {
                             splitter = j + 1;
                             break;
                         }
-                        segmentsTally += result[resultIndex].segments[j];
+                        segmentsTally += result[resultIndex].tokens[j].value;
                     }
 
-                    result[resultIndex].segments.splice(splitter, result[resultIndex].segments.length);
+                    result[resultIndex].tokens.splice(splitter, result[resultIndex].tokens.length);
                     segmentIndex = splitter;
-                    result[resultIndex].segments.push(segmentsTally * matches[i].value);
+                    result[resultIndex].tokens.push(new core.Token(segmentsTally * matches[i].value, 'number.segment', 0, ''));
 
                 } else {
                     // German language puts the 1s before the 10s, likely other languages do as well
-                    if (locale.flippers.indexOf(input.slice(previous.pos + previous.len, matches[i].pos)) > -1) {
-                        result[resultIndex].segments[segmentIndex] += matches[i].value;
+                    if (locale.flippers.indexOf(input.slice(previous.pos + previous.text.length, matches[i].pos)) > -1) {
+                        result[resultIndex].tokens[segmentIndex].value += matches[i].value;
                     } else {
-                        result[resultIndex].segments[segmentIndex] = result[resultIndex].segments[segmentIndex] * matches[i].value;
+                        result[resultIndex].tokens[segmentIndex].value = result[resultIndex].tokens[segmentIndex].value * matches[i].value;
                     }
                 }
-            } else if (previous && result[resultIndex].segments[segmentIndex] > matches[i].value) {
-                result[resultIndex].segments.push(matches[i].value);
+            } else if (previous && result[resultIndex].tokens[segmentIndex].value > matches[i].value) {
+                result[resultIndex].tokens.push(new core.Token(matches[i].value, 'number.segment', 0, ''));
                 segmentIndex++;
             } else {
-                result[resultIndex].segments[segmentIndex] += matches[i].value;
+                result[resultIndex].tokens[segmentIndex].value += matches[i].value;
+                result[resultIndex].tokens[segmentIndex].pos = matches[i].pos;
+                result[resultIndex].tokens[segmentIndex].text = matches[i].text;
             }
 
             previous = matches[i];
         }
-        result[resultIndex].value = result[resultIndex].segments.reduce(function (prev, next) { return (prev || 0) + next; });
-        result[resultIndex].text = input.slice(result[resultIndex].pos, previous.pos + previous.len);
+        result[resultIndex].value = tallySegments(result[resultIndex].tokens);
+        result[resultIndex].text = input.slice(result[resultIndex].pos, previous.pos + previous.text.length);
 
         /**
          * Create parsed results object and Bind functions to the parsed results for sugar
