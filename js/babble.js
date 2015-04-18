@@ -289,6 +289,15 @@
 
     var Locales = {
         'en-US': {
+            'millennium': {
+                'full': ['millennium', 'millennia']
+            },
+            'century': {
+                'full': ['centuries', 'century']
+            },
+            'decade': {
+                'full': ['decades', 'decade']
+            },
             'year': {
                 'full': ['years', 'year'],
                 'short': ['yr'],
@@ -321,10 +330,7 @@
             },
             'timeJoiners': [',',', and',',and','and',''],
             'modifierJoiners': ['of an','of a','an','a',''],
-            'modifiers': {
-                'quarter': 0.25,
-                'half': 0.5
-            },
+            
             /**
              * Pluralizes a word based on how many
              */
@@ -367,6 +373,9 @@
     var hourInt = 60 * minuteInt;
     var dayInt = 24 * hourInt;
     var yearInt = 365 * dayInt;
+    var decadeInt = 10 * yearInt;
+    var centuryInt = 10 * decadeInt;
+    var millenniumInt = 10 * centuryInt;
     
     /**
      * Create Duration object
@@ -384,23 +393,23 @@
 
         var leftOver = milliseconds;
         if (leftOver >= yearInt) {
-            this.years = Math.floor(leftOver / yearInt);;
+            this.years = Math.floor(leftOver / yearInt);
             leftOver -= this.years * yearInt;
         }
         if (leftOver >= dayInt) {
-            this.days = Math.floor(leftOver / dayInt);;
+            this.days = Math.floor(leftOver / dayInt);
             leftOver -= this.days * dayInt;
         }
         if (leftOver >= hourInt) {
-            this.hours = Math.floor(leftOver / hourInt);;
+            this.hours = Math.floor(leftOver / hourInt);
             leftOver -= this.hours * hourInt;
         }
         if (leftOver >= minuteInt) {
-            this.minutes = Math.floor(leftOver / minuteInt);;
+            this.minutes = Math.floor(leftOver / minuteInt);
             leftOver -= this.minutes * minuteInt;
         }
         if (leftOver >= secondInt) {
-            this.seconds = Math.floor(leftOver / secondInt);;
+            this.seconds = Math.floor(leftOver / secondInt);
             leftOver -= this.seconds * secondInt;
         }
         this.milliseconds = leftOver;
@@ -514,6 +523,9 @@
         ];
         
         var names = []
+            .concat(locale.millennium.full)
+            .concat(locale.century.full)
+            .concat(locale.decade.full)
             .concat(locale.year.full)
             .concat(locale.day.full)
             .concat(locale.hour.full)
@@ -534,6 +546,26 @@
             .concat(locale.millisecond.symbol);
         
         var getValue = function (name) {
+            var isMillennium = function (name) {
+                if (locale.millennium.full.indexOf(name) > -1) {
+                    return true;
+                }
+                return false;
+            };
+            
+            var isCentury = function (name) {
+                if (locale.century.full.indexOf(name) > -1) {
+                    return true;
+                }
+                return false;
+            };
+            
+            var isDecade = function (name) {
+                if (locale.decade.full.indexOf(name) > -1) {
+                    return true;
+                }
+                return false;
+            };
             
             var isYear = function (name) {
                 if (locale.year.full.indexOf(name) > -1) {
@@ -613,6 +645,15 @@
                 return false;
             };
             
+            if (isMillennium(name)) {
+                return millenniumInt;   
+            }
+            if (isCentury(name)) {
+                return centuryInt;   
+            }
+            if (isDecade(name)) {
+                return decadeInt;   
+            }
             if (isYear(name)) {
                 return yearInt;   
             }
