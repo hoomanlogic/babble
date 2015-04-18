@@ -8,6 +8,7 @@
 
     var Locales = {
         'en-US': {
+            'code': 'en-US',
             'millennium': {
                 'full': ['millennium', 'millennia']
             },
@@ -75,14 +76,68 @@
         },
 
     };
-//    Locales['de-DE'] = {
-//        'hours': [
-//            'h', 'hr', 'ohre'
-//        ],
-//        'minutes': [
-//            'm','min','minuten'   
-//        ]
-//    };
+    Locales['de-DE'] = {
+            'code': 'de-DE',
+            'millennium': {
+                'full': []
+            },
+            'century': {
+                'full': []
+            },
+            'decade': {
+                'full': []
+            },
+            'year': {
+                'full': ['jahre', 'jahr'],
+                'short': [],
+                'symbol': ['j']
+            },
+            'day': {
+                'full': ['tage', 'tag'],
+                'short': [],
+                'symbol': ['t']
+            },
+            'hour': {
+                'full': ['stunde'],
+                'short': [],
+                'symbol': ['st'],
+            },
+            'minute': {
+                'full': ['minuten'],
+                'short': ['min'],
+                'symbol': ['m'],
+            },
+            'second': {
+                'full': ['sekunden'],
+                'short': ['sek'],
+                'symbol': ['s'],
+            },
+            'millisecond': {
+                'full': ['millisekunden'],
+                'short': ['millisek', 'msek'],
+                'symbol': ['ms'],
+            },
+            'timeJoiners': [',',', und',',und','und',''],
+            'modifierJoiners': ['ob',''],
+            
+            /**
+             * Pluralizes a word based on how many
+             */
+            formatNoun: function (noun, howMany) {
+
+                var plural = function (noun) {
+                    return noun + 'e';
+                }
+
+                if (howMany === 0) {
+                    return 'kein ' + plural(noun);
+                } else if (howMany === 1) {
+                    return noun;
+                } else {
+                    return plural(noun);
+                }
+            }
+        };
 
     /**
      * Module variables for duration calculations
@@ -420,7 +475,7 @@
         /**
          * Run pre-parsing dependencies
          */
-        var preParse = this.passToAssistants(input, locale);
+        var preParse = this.passToAssistants(input, locale.code);
         var preParsedOutput = preParse.preParsedOutput, 
             preParsedResults = preParse.preParsedResults;
         

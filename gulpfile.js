@@ -37,7 +37,6 @@ gulp.task('build-full', function () {
         .pipe(concat('babble.js'))
         .pipe(gulp.dest('dist'))
         .pipe(gulp.dest('demo/js'))
-		.pipe(gulp.dest('../pages/babble/js'));
 });
 
 gulp.task('build-min', function () {
@@ -53,7 +52,6 @@ gulp.task('build-min', function () {
         .pipe(concat('babble.min.js'))
         .pipe(gulp.dest('dist'))
         .pipe(gulp.dest('demo/js'))
-		.pipe(gulp.dest('../pages/babble/js'));
 });
 
 // TASK: Compile LESS source
@@ -79,6 +77,21 @@ gulp.task('sync-gh-page', function () {
         .pipe(gulp.dest('../pages/babble'));
 });
 
+gulp.task('sync-gh-page-js', function () {
+    return gulp.src(['demo/js/*.js'])
+        .pipe(gulp.dest('../pages/babble/js'));
+});
+
+gulp.task('sync-gh-page-css', function () {
+    return gulp.src(['demo/css/*.css'])
+        .pipe(gulp.dest('../pages/babble/css'));
+});
+
+gulp.task('sync-gh-page-media', function () {
+    return gulp.src(['demo/media/**'])
+        .pipe(gulp.dest('../pages/babble/media'));
+});
+
 // TASK: Watch Files
 gulp.task('watch', function () {
 
@@ -101,7 +114,7 @@ gulp.task('watch', function () {
     });
     
     // Watch for updates to demo page
-    var demoWatcher = gulp.watch(['demo/index.html'], ['sync-gh-page']);
+    var demoWatcher = gulp.watch(['demo/index.html', 'demo/js/*.js', 'demo/css/*.css', 'demo/media/***'], ['sync-gh-page', 'sync-gh-page-js', 'sync-gh-page-css', 'sync-gh-page-media']);
     jsWatcher.on('change', function (event) {
         console.log('File ' + event.path + ' was ' + event.type + ', running task...');
     });

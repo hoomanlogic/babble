@@ -40,7 +40,8 @@
         }
         
         var translator = get(name, locale);
-        translator.listen(speaker, event, onTranslate);
+        //translator.locale = locale; // we have to set it so it doesn't forget
+        translator.listen(speaker, event, onTranslate, locale);
     };
 
     /**
@@ -178,7 +179,7 @@
          * Attaches the translate function to an event listener
          * @param speaker {Element, object, string} 
          */
-        listen: function (speaker, event, onTranslate) {
+        listen: function (speaker, event, onTranslate, locale) {
             /**
              * Get object reference to the Element
              * if speaker is a string and document
@@ -203,13 +204,13 @@
              * Bind to the input control's oninput event
              */
             if (speaker.addEventListener) {
-                speaker.addEventListener(event, this.translate.bind(this, speaker, onTranslate));
+                speaker.addEventListener(event, this.translate.bind(this, speaker, locale, onTranslate));
             } else if (speaker.attachEvent) {
-                speaker.attachEvent('on' + event, this.translate.bind(this, speaker, onTranslate));
+                speaker.attachEvent('on' + event, this.translate.bind(this, speaker, locale, onTranslate));
             } else if (typeof speaker['on' + event] !== 'undefined') {
-                speaker['on' + event] = this.translate.bind(this, speaker, onTranslate);
+                speaker['on' + event] = this.translate.bind(this, speaker, locale, onTranslate);
             } else if (typeof speaker[event] !== 'undefined') {
-                speaker[event] = this.translate.bind(this, speaker, onTranslate);
+                speaker[event] = this.translate.bind(this, speaker, locale, onTranslate);
             } else {
                 throw new Error('Could not find an appropriate event to bind to');   
             }
@@ -225,10 +226,9 @@
             /**
              * Determine the locale
              */
-            var localeIndex = arguments.length;
+            var localeIndex = arguments.length > 1 ? 1 : 0;
             var locale = this.locale;
-            if (translators[this.name].supportedLocales.indexOf(arguments[arguments.length - 1]) !== -1) {
-                localeIndex = arguments.length - 1
+            if (translators[this.name].supportedLocales.indexOf(arguments[localeIndex]) !== -1) {
                 locale = arguments[localeIndex];
             }
         
@@ -236,7 +236,7 @@
              * Determine the input
              */
             var input = '';
-            var inputIndex = localeIndex - 1;
+            var inputIndex = arguments.length > 2 ? arguments.length - 1 : localeIndex - 1;
             if (typeof arguments[inputIndex] === 'string') {
                 input = arguments[inputIndex];
             } else if (arguments[inputIndex] && arguments[inputIndex].target && arguments[inputIndex].target.value) {
@@ -248,8 +248,8 @@
              */
             if (input) {
                 var result = this.parse(input, locale);
-                if (arguments.length > 2 && typeof arguments[1] === 'function') {
-                    arguments[1](result, arguments[0]);
+                if (arguments.length > 2 && typeof arguments[2] === 'function') {
+                    arguments[2](result, arguments[0]);
                 } else if (this.onTranslate && arguments.length > 1 && typeof arguments[0] !== 'string') {
                     this.onTranslate(result, arguments[0]);
                 }
@@ -330,6 +330,7 @@
 
     var Locales = {
         'en-US': {
+            'code': 'en-US',
             'millennium': {
                 'full': ['millennium', 'millennia']
             },
@@ -397,14 +398,68 @@
         },
 
     };
-//    Locales['de-DE'] = {
-//        'hours': [
-//            'h', 'hr', 'ohre'
-//        ],
-//        'minutes': [
-//            'm','min','minuten'   
-//        ]
-//    };
+    Locales['de-DE'] = {
+            'code': 'de-DE',
+            'millennium': {
+                'full': []
+            },
+            'century': {
+                'full': []
+            },
+            'decade': {
+                'full': []
+            },
+            'year': {
+                'full': ['jahre', 'jahr'],
+                'short': [],
+                'symbol': ['j']
+            },
+            'day': {
+                'full': ['tage', 'tag'],
+                'short': [],
+                'symbol': ['t']
+            },
+            'hour': {
+                'full': ['stunde'],
+                'short': [],
+                'symbol': ['st'],
+            },
+            'minute': {
+                'full': ['minuten'],
+                'short': ['min'],
+                'symbol': ['m'],
+            },
+            'second': {
+                'full': ['sekunden'],
+                'short': ['sek'],
+                'symbol': ['s'],
+            },
+            'millisecond': {
+                'full': ['millisekunden'],
+                'short': ['millisek', 'msek'],
+                'symbol': ['ms'],
+            },
+            'timeJoiners': [',',', und',',und','und',''],
+            'modifierJoiners': ['ob',''],
+            
+            /**
+             * Pluralizes a word based on how many
+             */
+            formatNoun: function (noun, howMany) {
+
+                var plural = function (noun) {
+                    return noun + 'e';
+                }
+
+                if (howMany === 0) {
+                    return 'kein ' + plural(noun);
+                } else if (howMany === 1) {
+                    return noun;
+                } else {
+                    return plural(noun);
+                }
+            }
+        };
 
     /**
      * Module variables for duration calculations
@@ -742,7 +797,7 @@
         /**
          * Run pre-parsing dependencies
          */
-        var preParse = this.passToAssistants(input, locale);
+        var preParse = this.passToAssistants(input, locale.code);
         var preParsedOutput = preParse.preParsedOutput, 
             preParsedResults = preParse.preParsedResults;
         
