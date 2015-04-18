@@ -49,7 +49,7 @@ var setUp = function (locale) {
  * a separate instance of a translator
  */
 var onNumbersInput = function (result) {
-    document.getElementById('numbersResult').innerHTML = result.digify();
+    document.getElementById('numbersResult').innerHTML = result.toString();
     document.getElementById('numbersValues').innerHTML = null;
 
     if (result.tokens.length> 0) {
@@ -63,7 +63,7 @@ var onNumbersInput = function (result) {
 };
 
 var onDurationsInput = function (result) {
-    document.getElementById('durationsResult').innerHTML = result.digify();
+    document.getElementById('durationsResult').innerHTML = result.toString();
     document.getElementById('durationsValues').innerHTML = null;
 
     if (result.tokens.length > 0) {
@@ -71,7 +71,7 @@ var onDurationsInput = function (result) {
         var hoomanized = [];
         result.tokens.forEach(function (item) {
             values.push(item.value.value);
-            hoomanized.push(item.value.hoomanize());
+            hoomanized.push(item.value.toString());
         });
         document.getElementById('durationsValues').innerHTML = values.join(',');
         document.getElementById('durationsHoomanized').innerHTML = hoomanized.join('<br />');

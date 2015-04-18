@@ -87,7 +87,10 @@
         toString: function () {
             var input = this.input;
             for (var i = 0; i < this.tokens.length; i++) {
-                input = input.splice(this.tokens[i].pos, this.tokens[i].pos + this.tokens[i].text.length, toStringIfExists(this.tokens[i].value));
+                input = 
+                    input.slice(0 ,this.tokens[i].pos) + 
+                    toStringIfExists(this.tokens[i].value) + 
+                    input.slice(this.tokens[i].pos + this.tokens[i].text.length);
             }
             return input;
         }
