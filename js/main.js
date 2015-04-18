@@ -1,5 +1,20 @@
 var currentLocale = 'en-US';
 
+var locales = {
+    'en-US': {
+        'titleWhatIsIt': 'What is Babble?',
+        'whatItIs': 'Babble is a JavaScript library for extending user interfaces to better understand humans.',
+        'whatItIs2': 'Babble follows the <a href="http://en.wikipedia.org/wiki/Single_responsibility_principle">single responsibility principle</a> by designing small modular parsers that translate a specific context and defer to other parsers to help make sense of the input. For example, DurationsTranslator will first pass the input to the NumbersTranslator.',
+        'sample': 'Four score and seven years ago our fathers brought forth on this continent, a new nation, conceived in Liberty, and dedicated to the proposition that all men are created equal.'
+    },
+    'de-DE': {
+        'titleWhatIsIt': 'Was ist Babble?',
+        'whatItIs': 'Babble ist eine JavaScript-Bibliothek für die Verlängerung Benutzerschnittstellen für den Menschen besser zu verstehen.',
+        'whatItIs2': 'Babble folgt dem <a href="http://de.wikipedia.org/wiki/Single-Responsibility-Prinzip">Single-Responsibility-Prinzip</a> durch die Entwicklung kleiner modularer Parser, die einen spezifischen Kontext zu übersetzen und zu verschieben, um weitere Parser zu helfen, Sinn für die Eingabe. Zum Beispiel wird DurationsTranslator zuerst über die Eingabe in die NumbersTranslator.',
+        'sample': 'Es regnet einemillion sechshundertdreiundfünfzig tausend eins Katzen und drei hundert siebzig Hunden.'
+    }
+}
+
 var switchLocale = function (locale) {
     setUp(locale);
 };
@@ -14,19 +29,18 @@ var setUp = function (locale) {
     babble.assign('numbers', 'numbersInput', 'input', locale, onNumbersInput);
     babble.assign('durations', 'durationsInput', 'input', locale, onDurationsInput);
 
-    var localeText = 'Four score and seven years ago our fathers brought forth on this continent, a new nation, conceived in Liberty, and dedicated to the proposition that all men are created equal.';
-    if (locale === 'de-DE') {
-        localeText = 'Es regnet einemillion sechshundertdreiundfünfzig tausend eins Katzen und drei hundert siebzig Hunden.';
-    }
+    document.getElementById('title-what-is-it').innerHTML = locales[locale].titleWhatIsIt;
+    document.getElementById('what-it-is').innerHTML = locales[locale].whatItIs;
+    document.getElementById('what-it-is2').innerHTML = locales[locale].whatItIs2;
     
     // demonstrate cool factor
-    document.getElementById('numbersInput').value = localeText;
-    document.getElementById('numbersInput').innerHTML = localeText;
-    onNumbersInput(babble.get('numbers').translate(localeText, locale));
+    document.getElementById('numbersInput').value = locales[locale].sample;
+    document.getElementById('numbersInput').innerHTML = locales[locale].sample;
+    onNumbersInput(babble.get('numbers').translate(locales[locale].sample, locale));
     
-    document.getElementById('durationsInput').value = localeText;
-    document.getElementById('durationsInput').innerHTML = localeText;
-    onDurationsInput(babble.get('durations').translate(localeText, locale));
+    document.getElementById('durationsInput').value = locales[locale].sample;
+    document.getElementById('durationsInput').innerHTML = locales[locale].sample;
+    onDurationsInput(babble.get('durations').translate(locales[locale].sample, locale));
 };
 
 /**
