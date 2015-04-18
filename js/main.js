@@ -107,7 +107,9 @@ function makeLink( id, url ){
 makeLink( 'github', 'https://github.com/hoomanlogic/babble' );
 makeSocial( 'twitter',  500, 300, 'https://twitter.com/share?text='+ escape( '#Babble by @hoomanlogic is a JavaScript library for building user interfaces that understand humans:' ) +'&url=' + escape( 'http://hoomanlogic.github.io/babble' ));
 makeSocial( 'facebook', 400, 300, 'https://www.facebook.com/sharer/sharer.php?u='+ escape( 'http://hoomanlogic.github.io/babble' ));
-setUp('en-US');
+
+var defaultLocale = locales.hasOwnProperty(navigator.language) ? navigator.language : 'en-US';
+setUp(defaultLocale);
 
 document.getElementById('en-US').addEventListener( 'click', switchLocale.bind(null, 'en-US'));
 document.getElementById('de-DE').addEventListener( 'click', switchLocale.bind(null, 'de-DE'));
