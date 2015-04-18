@@ -1151,31 +1151,31 @@
         /**
          * Array for holding number matches
          */
-        var matches = [];
+        var words = [];
 
         /**
-         * Add numerical language matches
+         * Add numerical language words
          */
         var re = new RegExp('(' + names.join('|') + ')', 'gi');
         
         var match;
         while ((match = re.exec(input)) !== null) {
-            core.insertToken(matches, new core.Token(
+            core.insertToken(words, new core.Token(
                 getValue(match[0], locale), 
-                'number.segment', 
+                'number.word', 
                 match.index, 
                 match[0]
             ));
         };
         
         /**
-         * Add digit matches
+         * Add digit words
          */
         re = /([+-]{0,1}\d+)/gi;
         while ((match = re.exec(input)) !== null) {
-            core.insertToken(matches, new core.Token(
+            core.insertToken(words, new core.Token(
                 getValue(match[0], locale), 
-                'number.segment', 
+                'number.word', 
                 match.index, 
                 match[0]
             ));
@@ -1183,9 +1183,9 @@
         
         /**
          * Return empty result when there are
-         * no matches
+         * no words
          */
-        if (matches.length === 0) {
+        if (words.length === 0) {
             return new core.ParsedResult(input, []); 
         }
         
@@ -1197,80 +1197,105 @@
         var tallySegments = function (segments) {
             var value = 0;
             segments.forEach( function (segment) {
-                value += segment.value;  
+                value += segment.value;
             });
             return value;
         };
 
-        var result = [new core.Token(0, 'number', 0, '', [new core.Token(0, 'number.segment', 0, '')])];
-        var resultIndex = 0;
-        var segmentIndex = 0;
-        var previous = null;
-        for (var i = 0; i < matches.length; i++) {
+        var numbers = [];
+        var segments = [];
+        var numbersIndex = -1;
+        var segmentsIndex = -1;
+        var prevWord = null;
+        for (var i = 0; i < words.length; i++) {
 
             // first lets check to see what characters
             // are joining this result with the last result
-            if (previous) {
-                var joiner = input.slice(previous.pos + previous.text.length, matches[i].pos);
+            if (prevWord) {
+                var joiner = input.slice(prevWord.pos + prevWord.text.length, words[i].pos);
                 if (locale.joiners.indexOf(joiner) === -1) {
-                    result[resultIndex].value = tallySegments(result[resultIndex].tokens);
-                    result[resultIndex].text = input.slice(result[resultIndex].pos, previous.pos + previous.text.length);
-                    result.push(new core.Token(0, 'number', 0, '', [new core.Token(0, 'number.segment', 0, '')]));
-                    resultIndex++;
-                    segmentIndex = 0;
-                    previous = null;
-                    result[resultIndex].pos = matches[i].pos;
+                    numbers[numbersIndex].value = tallySegments(numbers[numbersIndex].tokens);
+                    numbers[numbersIndex].text = input.slice(numbers[numbersIndex].pos, prevWord.pos + prevWord.text.length);
+                    prevWord = null;
                 }
-            } else {
-                result[resultIndex].pos = matches[i].pos;
+            }
+            
+            // above block may set prevWord to null
+            // to intentionally cause this condition
+            if (!prevWord) {
+                segments = [];
+                segments.push(new core.Token(words[i].value, 'number.segment', words[i].pos, words[i].text, [words[i]]));
+                numbers.push(new core.Token(words[i].value, 'number', words[i].pos, words[i].text, segments));
+                numbersIndex++;
+                segmentsIndex = 0;
             }
 
-            if (previous && (numDigits(result[resultIndex].tokens[segmentIndex].value) < numDigits(matches[i].value) || matches[i].value < 1)) {
+            if (prevWord && (numDigits(numbers[numbersIndex].tokens[segmentsIndex].value) < numDigits(words[i].value) || words[i].value < 1)) {
 
-                // check previous segments
-                if (segmentIndex > 0 && (result[resultIndex].tokens[segmentIndex - 1].value < matches[i].value) ) {
-
+                var theSpaceBetween = input.slice(prevWord.pos + prevWord.text.length, words[i].pos);
+                if (locale.flippers.indexOf(theSpaceBetween) > -1) {
+                    numbers[numbersIndex].tokens[segmentsIndex].tokens.push(words[i]);
+                    numbers[numbersIndex].tokens[segmentsIndex].value += words[i].value;
+                } else if (segmentsIndex === 0) {
+                    numbers[numbersIndex].tokens[segmentsIndex].tokens.push(words[i]);
+                    numbers[numbersIndex].tokens[segmentsIndex].value *= words[i].value;
+                } else {
+                    // might merge a segment
                     // traverse backwards until the end or sum is greater than current value
                     var segmentsTally = 0;
                     var splitter = 0;
-                    for (var j = result[resultIndex].tokens.length - 1; j > -1; j--) {
-                        if (segmentsTally + result[resultIndex].tokens[j].value > matches[i].value) {
+                    for (var j = numbers[numbersIndex].tokens.length - 1; j > -1; j--) {
+                        
+                        if (numbers[numbersIndex].tokens[j].value > words[i].value) {
                             splitter = j + 1;
                             break;
                         }
-                        segmentsTally += result[resultIndex].tokens[j].value;
+                        
+                        segmentsTally += numbers[numbersIndex].tokens[j].value;
                     }
 
-                    result[resultIndex].tokens.splice(splitter, result[resultIndex].tokens.length);
-                    segmentIndex = splitter;
-                    result[resultIndex].tokens.push(new core.Token(segmentsTally * matches[i].value, 'number.segment', 0, ''));
-
-                } else {
-                    // German language puts the 1s before the 10s, likely other languages do as well
-                    if (locale.flippers.indexOf(input.slice(previous.pos + previous.text.length, matches[i].pos)) > -1) {
-                        result[resultIndex].tokens[segmentIndex].value += matches[i].value;
-                    } else {
-                        result[resultIndex].tokens[segmentIndex].value = result[resultIndex].tokens[segmentIndex].value * matches[i].value;
-                    }
-                }
-            } else if (previous && result[resultIndex].tokens[segmentIndex].value > matches[i].value) {
-                result[resultIndex].tokens.push(new core.Token(matches[i].value, 'number.segment', 0, ''));
-                segmentIndex++;
-            } else {
-                result[resultIndex].tokens[segmentIndex].value += matches[i].value;
-                result[resultIndex].tokens[segmentIndex].pos = matches[i].pos;
-                result[resultIndex].tokens[segmentIndex].text = matches[i].text;
+                    var segmentsToMerge = numbers[numbersIndex].tokens.splice(
+                        splitter, numbers[numbersIndex].tokens.length
+                    );
+                    
+                    var mergedSegment = new core.Token(
+                        segmentsTally * words[i].value, 
+                        'number.segment', 
+                        segmentsToMerge[0].pos, 
+                        input.slice(
+                            segmentsToMerge[0].pos, 
+                            segmentsToMerge[segmentsToMerge.length - 1].pos + 
+                            segmentsToMerge[segmentsToMerge.length - 1].text.length)
+                    );
+                    
+                    numbers[numbersIndex].tokens.push(mergedSegment);
+                    segmentsIndex = splitter;
+                }   
+            } else if (prevWord && numbers[numbersIndex].tokens[segmentsIndex].value > words[i].value) {
+                numbers[numbersIndex].tokens.push(new core.Token(
+                    words[i].value,
+                    'number.segment',
+                    words[i].pos,
+                    words[i].text,
+                    [words[i]]
+                ));
+                segmentsIndex++;
+            } else if (prevWord) {
+                numbers[numbersIndex].tokens[segmentsIndex].value += words[i].value;
+                numbers[numbersIndex].tokens[segmentsIndex].pos = words[i].pos;
+                numbers[numbersIndex].tokens[segmentsIndex].text = words[i].text;
             }
+            numbers[numbersIndex].tokens[segmentsIndex].text = input.slice( numbers[numbersIndex].tokens[segmentsIndex].pos, words[i].pos + words[i].text.length);
 
-            previous = matches[i];
+            prevWord = words[i];
         }
-        result[resultIndex].value = tallySegments(result[resultIndex].tokens);
-        result[resultIndex].text = input.slice(result[resultIndex].pos, previous.pos + previous.text.length);
+        numbers[numbersIndex].value = tallySegments(numbers[numbersIndex].tokens);
+        numbers[numbersIndex].text = input.slice(numbers[numbersIndex].pos, prevWord.pos + prevWord.text.length);
 
         /**
          * Create parsed results object and Bind functions to the parsed results for sugar
          */
-        return new core.ParsedResult(input, result);
+        return new core.ParsedResult(input, numbers);
     };
     
     /**
