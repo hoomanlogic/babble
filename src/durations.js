@@ -190,7 +190,7 @@
     }
     
     
-    exports.Duration.prototype.hoomanize = function (unitOfSpecificity, locale) {
+    exports.Duration.prototype.toString = function (unitOfSpecificity, locale) {
         
         /**
          * Set the locale used for matching
@@ -250,10 +250,6 @@
         } else {
             return 0;   
         }
-    }
-    
-    exports.Duration.prototype.toString = function (milliseconds) {
-        return this.value;
     }
 
     /**
@@ -475,9 +471,7 @@
         /**
          * Run pre-parsing dependencies
          */
-        var preParse = this.passToAssistants(input, locale.code);
-        var preParsedOutput = preParse.preParsedOutput, 
-            preParsedResults = preParse.preParsedResults;
+        var preParsedResults = this.passToAssistants(input, locale.code);
         
         /**
          * Array for holding number matches
@@ -519,7 +513,7 @@
 
         
         if (matches.length === 0) {
-            return new core.ParsedResult(input, [], preParsedOutput, preParsedResults); 
+            return new core.ParsedResult(input, [], preParsedResults); 
         }
 
         var results = [];
@@ -604,7 +598,7 @@
                 var joiner = input.slice(prev.pos + prev.text.length, next.pos);
                 if (locale.timeJoiners.indexOf(joiner.trim()) > -1) {
                     next.value += prev.value;
-                    next.text = preParsedOutput.slice(prev.pos, next.pos + next.text.length);
+                    next.text = input.slice(prev.pos, next.pos + next.text.length);
                     next.pos = prev.pos;
                 } else {
                     results.push(prev);
@@ -621,7 +615,7 @@
         /**
          * Create parsed results object and Bind functions to the parsed results for sugar
          */
-        return new core.ParsedResult(input, results, preParsedOutput, preParsedResults);
+        return new core.ParsedResult(input, results, preParsedResults);
     };
     
     /**

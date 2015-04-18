@@ -10,36 +10,45 @@ describe('numbers parse should recognize', function() {
     var numberTranslator = new numbers.NumberTranslator();
     
     it('half a billion', function() {
-        numberTranslator.translate('half a billion').digify().should.equal('500000000');
+        numberTranslator.translate('half a billion').tokens[0].value.should.equal(500000000);
     })
     
     it('half-a-bill', function() {
-        numberTranslator.translate('half-a-bill').digify().should.equal('500000000');
+        numberTranslator.translate('half-a-bill').tokens[0].value.should.equal(500000000);
     })
     
     it('half-a-mil', function() {
-        numberTranslator.translate('half-a-mil').digify().should.equal('500000');
+        numberTranslator.translate('half-a-mil').tokens[0].value.should.equal(500000);
     })
     
     it('one million two hundred fifty one thousand three hundred and sixty five', function() {
-        numberTranslator.translate('one million two hundred fifty one thousand three hundred and sixty five').digify().should.equal('1251365');
+        numberTranslator.translate('one million two hundred fifty one thousand three hundred and sixty five').tokens[0].value.should.equal(1251365);
     })
     
     it('one million two hundred fifty one thousand three hundred and sixty five cats and sixty five dogs', function() {
-        numberTranslator.translate('one million two hundred fifty one thousand three hundred and sixty five cats and sixty five dogs').digify().should.equal('1251365 cats and 65 dogs');
+        var result = numberTranslator.translate('one million two hundred fifty one thousand three hundred and sixty five cats and sixty five dogs');
+        result.tokens[0].value.should.equal(1251365);
+        result.tokens[1].value.should.equal(65);
     })
         
     it('eine million sechs hundertdreiundfünfzigtausend eins katze und drei hundert siebzig hunde', function() {
-        numberTranslator.translate('eine million sechs hundertdreiundfünfzigtausend eins katze und drei hundert siebzig hunde', 'de-DE').digify().should.equal('1653001 katze und 370 hunde');
+        var result = numberTranslator.translate('eine million sechs hundertdreiundfünfzigtausend eins katze und drei hundert siebzig hunde', 'de-DE');
+        result.tokens[0].value.should.equal(1653001);
+        result.tokens[1].value.should.equal(370);
         
         // setting the locale on the translation service
         numberTranslator.locale = 'de-DE';
-        numberTranslator.translate('eine million sechs hundertdreiundfünfzigtausend eins katze und drei hundert siebzig hunde').digify().should.equal('1653001 katze und 370 hunde');
+        var result = numberTranslator.translate('eine million sechs hundertdreiundfünfzigtausend eins katze und drei hundert siebzig hunde');
+        result.tokens[0].value.should.equal(1653001);
+        result.tokens[1].value.should.equal(370);
         numberTranslator.locale = 'en-US';
     })
     
     it('50 cats flew twenty 2 miles per hour past five dogs', function() {
-        numberTranslator.translate('50 cats flew twenty 2 miles per hour past five dogs').digify().should.equal('50 cats flew 22 miles per hour past 5 dogs');
+        var result = numberTranslator.translate('50 cats flew twenty 2 miles per hour past five dogs');
+        result.tokens[0].value.should.equal(50);
+        result.tokens[1].value.should.equal(22);
+        result.tokens[2].value.should.equal(5);
     })
 })
 

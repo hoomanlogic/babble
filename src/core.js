@@ -20,31 +20,6 @@
     };
 
     /**
-     * TODO: Describe this
-     */
-    var assign = function (name, speaker) {
-        var event = null, 
-            locale = null, 
-            onTranslate = null;
-        
-        if (arguments.length < 3 || typeof arguments[arguments.length - 1] !== 'function') {
-            throw new TypeError('Unexpected number of arguments');   
-        }
-        
-        onTranslate = arguments[arguments.length - 1];
-        if (arguments.length > 3) {
-            event = arguments[2];
-        }
-        if (arguments.length > 4) {
-            locale = arguments[3];
-        }
-        
-        var translator = get(name, locale);
-        //translator.locale = locale; // we have to set it so it doesn't forget
-        translator.listen(speaker, event, onTranslate, locale);
-    };
-
-    /**
      * Get token closest to current match that is 
      * between the previous and current match.
      * As always, a collection of tokens is assumed 
@@ -71,6 +46,7 @@
 
         return token;
     };
+    exports.getTokenModifier = getTokenModifier;
     
     /**
      * Function keeps the matches in order by the position
@@ -91,14 +67,14 @@
             }
         }
     };
-
+    exports.insertToken = insertToken;
+    
     /**
      * Create parsed results object and Bind functions to the parsed results for sugar
      */
-    var ParsedResult = function (input, tokens, preParsedOutput, preParsedResults) {
+    var ParsedResult = function (input, tokens, preParsedResults) {
         this.input = input;
         this.tokens = tokens;
-        this.preParsedOutput = preParsedOutput || null;
         this.preParsedResults = preParsedResults || null;
     };
     
@@ -108,10 +84,10 @@
          * spelled out numbers and converts them to digits
          * @return {number} Returns the processed input string.
          */
-        digify: function () {
-            var input = this.preParsedOutput || this.input;
+        toString: function () {
+            var input = this.input;
             for (var i = 0; i < this.tokens.length; i++) {
-                input = input.replace(this.tokens[i].text, toStringIfExists(this.tokens[i].value));
+                input = input.splice(this.tokens[i].pos, this.tokens[i].pos + this.tokens[i].text.length, toStringIfExists(this.tokens[i].value));
             }
             return input;
         }
@@ -204,13 +180,13 @@
              * Bind to the input control's oninput event
              */
             if (speaker.addEventListener) {
-                speaker.addEventListener(event, this.translate.bind(this, speaker, locale, onTranslate));
+                speaker.addEventListener(event, this.translate.bind(this, { speaker: speaker, locale: locale, onTranslate: onTranslate }));
             } else if (speaker.attachEvent) {
-                speaker.attachEvent('on' + event, this.translate.bind(this, speaker, locale, onTranslate));
+                speaker.attachEvent('on' + event, this.translate.bind(this, { speaker: speaker, locale: locale, onTranslate: onTranslate }));
             } else if (typeof speaker['on' + event] !== 'undefined') {
-                speaker['on' + event] = this.translate.bind(this, speaker, locale, onTranslate);
+                speaker['on' + event] = this.translate.bind(this, { speaker: speaker, locale: locale, onTranslate: onTranslate });
             } else if (typeof speaker[event] !== 'undefined') {
-                speaker[event] = this.translate.bind(this, speaker, locale, onTranslate);
+                speaker[event] = this.translate.bind(this, { speaker: speaker, locale: locale, onTranslate: onTranslate });
             } else {
                 throw new Error('Could not find an appropriate event to bind to');   
             }
@@ -223,54 +199,86 @@
          * This can be used directly or by the listen method.
          */
         translate: function () {
+            
+            var input = null;
+            
             /**
-             * Determine the locale
+             * Default options
              */
-            var localeIndex = arguments.length > 1 ? 1 : 0;
-            var locale = this.locale;
-            if (translators[this.name].supportedLocales.indexOf(arguments[localeIndex]) !== -1) {
-                locale = arguments[localeIndex];
-            }
-        
+            var options = {
+                locale: this.locale,
+                onTranslate: null,
+                speaker: null
+            };
+            
             /**
-             * Determine the input
+             * Set passed input and options
              */
-            var input = '';
-            var inputIndex = arguments.length > 2 ? arguments.length - 1 : localeIndex - 1;
-            if (typeof arguments[inputIndex] === 'string') {
-                input = arguments[inputIndex];
-            } else if (arguments[inputIndex] && arguments[inputIndex].target && arguments[inputIndex].target.value) {
-                input = arguments[inputIndex].target.value;
+            for (var i = 0; i < arguments.length; i++) {
+                if (typeof arguments[i] === 'string') {
+                    /**
+                     * A string could either be a locale or the input.
+                     * If loc
+                     */
+                    if (arguments[i].length < 6 && translators[this.name].supportedLocales.indexOf(arguments[i]) !== -1) {
+                        options.locale = arguments[i];
+                    } else if (input === null) {
+                        input = arguments[i];
+                    }
+                } else if (typeof arguments[i] === 'object') {
+                    /**
+                     * Object could either be an Event object or the options object.
+                     * If object.target.value doesn't exist, then assume options object
+                     */
+                    if (typeof arguments[i].target !== 'undefined' && typeof arguments[i].target.value !== 'undefined') {
+                        input = arguments[i].target.value;
+                    } else {
+                        for (var propName in arguments[i]) {
+                            if (arguments[i].hasOwnProperty(propName)) {
+                                options[propName] = arguments[i][propName];
+                            }
+                        }
+                    }
+                } else if (typeof arguments[i] === 'function') {
+                    /**
+                     * We only support one type of function
+                     */
+                    options.onTranslate = arguments[i];
+                }
             }
-
+            
             /**
              * Parse the input, pass to callbacks, and return the result.
              */
             if (input) {
-                var result = this.parse(input, locale);
-                if (arguments.length > 2 && typeof arguments[2] === 'function') {
-                    arguments[2](result, arguments[0]);
-                } else if (this.onTranslate && arguments.length > 1 && typeof arguments[0] !== 'string') {
-                    this.onTranslate(result, arguments[0]);
+                var result = this.parse(input, options.locale);
+                /**
+                 * Callback passed in function
+                 */
+                if (options.onTranslate !== null) {
+                    options.onTranslate(result, options.speaker);
+                }
+                /**
+                 * Callback manually attached function
+                 */
+                if (this.onTranslate) {
+                    this.onTranslate(result, options.speaker);
                 }
                 return result;
             }
+            
+            throw new Error('translate function was not given an appropriate input to parse');
         },
         /**
          * Passes the input to the translators 
          * assistants and returns parsed results
          */
         passToAssistants: function (input, locale) {
-            var preParsedOutput = input, 
-                preParsedResults = {};
+            var preParsedResults = {};
             for (var i = 0; i < this.assistants.length; i++) {
-                preParsedResults[this.assistants[i]] = get(this.assistants[i]).parse(preParsedOutput, locale);
-                preParsedOutput = preParsedResults[this.assistants[i]].digify();
+                preParsedResults[this.assistants[i]] = get(this.assistants[i]).parse(input, locale);
             }
-            return {
-                preParsedOutput: preParsedOutput,
-                preParsedResults: preParsedResults
-            };
+            return preParsedResults;
         }
     };
         
@@ -313,10 +321,30 @@
     };
     exports.get = get;
     
+    /**
+     * TODO: Describe this
+     */
+    var assign = function (name, speaker) {
+        var event = null, 
+            locale = null, 
+            onTranslate = null;
+        
+        if (arguments.length < 3 || typeof arguments[arguments.length - 1] !== 'function') {
+            throw new TypeError('Unexpected number of arguments');   
+        }
+        
+        onTranslate = arguments[arguments.length - 1];
+        if (arguments.length > 3) {
+            event = arguments[2];
+        }
+        if (arguments.length > 4) {
+            locale = arguments[3];
+        }
+        
+        var translator = get(name, locale);
+        //translator.locale = locale; // we have to set it so it doesn't forget
+        translator.listen(speaker, event, onTranslate, locale);
+    };
     exports.assign = assign;
-
-    exports.getTokenModifier = getTokenModifier;
-    
-    exports.insertToken = insertToken;
     
 }(typeof exports === 'undefined' ? this['babble'] = this['babble'] || {}: exports));
