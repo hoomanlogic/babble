@@ -31,6 +31,26 @@
             return obj;   
         }
     };
+    
+    /**
+     * Function keeps the matches in order by the position
+     * so processing doesn't have to worry about sorting it
+     */
+    var insertMatch = function (arr, obj) {
+        if (arr.length === 0 || arr[arr.length - 1].pos < obj.pos) {
+            arr.push(obj);   
+        } else {
+            for (var i = 0; i < arr.length; i++) {
+                if (arr[i].pos > obj.pos) {
+                    arr.splice(i, 0, obj);
+                    break;
+                } else if (arr[i].pos === obj.pos && arr[i].len < obj.len) {
+                    arr.splice(i, 1, obj);
+                    break;
+                }
+            }
+        }
+    };
 
     /**
      * Create parsed results object and Bind functions to the parsed results for sugar
@@ -176,10 +196,11 @@
          * assistants and returns parsed results
          */
         passToAssistants: function (input, locale) {
-            var preParsedOutput = input, preParsedResults = [];
+            var preParsedOutput = input, 
+                preParsedResults = {};
             for (var i = 0; i < this.assistants.length; i++) {
-                preParsedResults.push(get(this.assistants[i]).parse(preParsedOutput, locale));
-                preParsedOutput = preParsedResults[i].digify();
+                preParsedResults[this.assistants[i]] = get(this.assistants[i]).parse(preParsedOutput, locale);
+                preParsedOutput = preParsedResults[this.assistants[i]].digify();
             }
             return {
                 preParsedOutput: preParsedOutput,
@@ -250,5 +271,11 @@
         translator.listen(speaker, event, onTranslate);
     };
     exports.assign = assign;
+    
+    exports.insertMatch = insertMatch;
+    
+    exports.theSpaceBetween = function(input, p1, l1, p2) {
+        return input.slice(p1 + l1, p2);
+    }
     
 }(typeof exports === 'undefined' ? this['babble'] = this['babble'] || {}: exports));

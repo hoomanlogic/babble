@@ -35,107 +35,116 @@ describe('durations parse', function() {
     var durationTranslator = new durations.DurationTranslator();
     
     it('1:30:30', function() {
-        durationTranslator.translate('1:30:30').digify().should.equal(String((90 * 60 * 1000) + 30000));
+        durationTranslator.translate('1:30:30').tokens[0].value.value.should.equal((90 * 60 * 1000) + 30000);
     })
     
     it('1:30:30.0', function() {
-        durationTranslator.translate('1:30:30.0').digify().should.equal(String((90 * 60 * 1000) + 30000));
+        durationTranslator.translate('1:30:30.0').tokens[0].value.value.should.equal((90 * 60 * 1000) + 30000);
+    })
+    it('1:30:30.5', function() {
+        durationTranslator.translate('1:30:30.5').tokens[0].value.value.should.equal((90 * 60 * 1000) + 30000 + 500);
+    })
+    it('1:30:30.05', function() {
+        durationTranslator.translate('1:30:30.05').tokens[0].value.value.should.equal((90 * 60 * 1000) + 30000 + 50);
+    })
+    it('1:30:30.005', function() {
+        durationTranslator.translate('1:30:30.005').tokens[0].value.value.should.equal((90 * 60 * 1000) + 30000 + 5);
     })
     
     it('1:0:0:30', function() {
-        durationTranslator.translate('1:0:0:30').digify().should.equal(String((24 * 60 * 60 * 1000) + 30000));
+        durationTranslator.translate('1:0:0:30').tokens[0].value.value.should.equal((24 * 60 * 60 * 1000) + 30000);
     })
     
     it('1:0:0:30.0', function() {
-        durationTranslator.translate('1:0:0:30.0').digify().should.equal(String((24 * 60 * 60 * 1000) + 30000));
+        durationTranslator.translate('1:0:0:30.0').tokens[0].value.value.should.equal((24 * 60 * 60 * 1000) + 30000);
     })
     
     it('one hour and thirty minutes', function() {
-        durationTranslator.translate('one hour and thirty minutes').digify().should.equal(90 * 60 * 1000 + '');
+        durationTranslator.translate('one hour and thirty minutes').tokens[0].value.value.should.equal(90 * 60 * 1000);
     })
     
     it('should parse "1hr30min"', function() {
-        durationTranslator.translate('1hr30min').digify().should.equal(90 * 60 * 1000 + '');
+        durationTranslator.translate('1hr30min').tokens[0].value.value.should.equal(90 * 60 * 1000);
     })
     
     it('should parse "a day"', function() {
-        durationTranslator.translate('a day').digify().should.equal(24 * 60 * 60 * 1000 + '');
+        durationTranslator.translate('a day').tokens[0].value.value.should.equal(24 * 60 * 60 * 1000);
     })
 
     it('should parse "quarter day"', function() {
-        durationTranslator.translate('quarter day').digify().should.equal(0.25 * 24 * 60 * 60 * 1000 + '');
+        durationTranslator.translate('quarter day').tokens[0].value.value.should.equal(0.25 * 24 * 60 * 60 * 1000);
     })
     
     it('should parse "half day"', function() {
-        durationTranslator.translate('half day').digify().should.equal(0.5 * 24 * 60 * 60 * 1000 + '');
+        durationTranslator.translate('half day').tokens[0].value.value.should.equal(0.5 * 24 * 60 * 60 * 1000);
     })
     
     it('should parse "half a day"', function() {
-        durationTranslator.translate('half a day').digify().should.equal(0.5 * 24 * 60 * 60 * 1000 + '');
+        durationTranslator.translate('half a day').tokens[0].value.value.should.equal(0.5 * 24 * 60 * 60 * 1000);
     })
     
     it('should parse "half of a day"', function() {
-        durationTranslator.translate('half of a day').digify().should.equal(0.5 * 24 * 60 * 60 * 1000 + '');
+        durationTranslator.translate('half of a day').tokens[0].value.value.should.equal(0.5 * 24 * 60 * 60 * 1000);
     })
 
     it('should parse "an hour"', function() {
-        durationTranslator.translate('an hour').digify().should.equal(60 * 60 * 1000 + '');
+        durationTranslator.translate('an hour').tokens[0].value.value.should.equal(60 * 60 * 1000);
     })
 
     it('should parse "quarter hour"', function() {
-        durationTranslator.translate('quarter hour').digify().should.equal(0.25 * 60 * 60 * 1000 + '');
+        durationTranslator.translate('quarter hour').tokens[0].value.value.should.equal(0.25 * 60 * 60 * 1000);
     })
     
     it('should parse "half hour"', function() {
-        durationTranslator.translate('half hour').digify().should.equal(0.5 * 60 * 60 * 1000 + '');
+        durationTranslator.translate('half hour').tokens[0].value.value.should.equal(0.5 * 60 * 60 * 1000);
     })
     
     it('should parse "half an hour"', function() {
-        durationTranslator.translate('half an hour').digify().should.equal(0.5 * 60 * 60 * 1000 + '');
+        durationTranslator.translate('half an hour').tokens[0].value.value.should.equal(0.5 * 60 * 60 * 1000);
     })
     
     it('should parse "half of an hour"', function() {
-        durationTranslator.translate('half of an hour').digify().should.equal(0.5 * 60 * 60 * 1000 + '');
+        durationTranslator.translate('half of an hour').tokens[0].value.value.should.equal(0.5 * 60 * 60 * 1000);
     })
     
     it('should parse "a minute"', function() {
-        durationTranslator.translate('a minute').digify().should.equal(60 * 1000 + '');
+        durationTranslator.translate('a minute').tokens[0].value.value.should.equal(60 * 1000);
     })
 
     it('should parse "quarter minute"', function() {
-        durationTranslator.translate('quarter minute').digify().should.equal(0.25 * 60 * 1000 + '');
+        durationTranslator.translate('quarter minute').tokens[0].value.value.should.equal(0.25 * 60 * 1000);
     })
     
     it('should parse "half minute"', function() {
-        durationTranslator.translate('half minute').digify().should.equal(0.5 * 60 * 1000 + '');
+        durationTranslator.translate('half minute').tokens[0].value.value.should.equal(0.5 * 60 * 1000);
     })
     
     it('should parse "half a minute"', function() {
-        durationTranslator.translate('half a minute').digify().should.equal(0.5 * 60 * 1000 + '');
+        durationTranslator.translate('half a minute').tokens[0].value.value.should.equal(0.5 * 60 * 1000);
     })
     
     it('should parse "half of a minute"', function() {
-        durationTranslator.translate('half of a minute').digify().should.equal(0.5 * 60 * 1000 + '');
+        durationTranslator.translate('half of a minute').tokens[0].value.value.should.equal(0.5 * 60 * 1000);
     })
     
     it('should parse "a second"', function() {
-        durationTranslator.translate('a second').digify().should.equal(1000 + '');
+        durationTranslator.translate('a second').tokens[0].value.value.should.equal(1000);
     })
 
     it('should parse "quarter second"', function() {
-        durationTranslator.translate('quarter second').digify().should.equal(0.25 * 1000 + '');
+        durationTranslator.translate('quarter second').tokens[0].value.value.should.equal(0.25 * 1000);
     })
     
     it('should parse "half second"', function() {
-        durationTranslator.translate('half second').digify().should.equal(0.5 * 1000 + '');
+        durationTranslator.translate('half second').tokens[0].value.value.should.equal(0.5 * 1000);
     })
     
     it('should parse "half a second"', function() {
-        durationTranslator.translate('half a second').digify().should.equal(0.5 * 1000 + '');
+        durationTranslator.translate('half a second').tokens[0].value.value.should.equal(0.5 * 1000);
     })
     
     it('should parse "half of a second"', function() {
-        durationTranslator.translate('half of a second').digify().should.equal(0.5 * 1000 + '');
+        durationTranslator.translate('half of a second').tokens[0].value.value.should.equal(0.5 * 1000);
     })
 })
 //

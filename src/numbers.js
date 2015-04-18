@@ -17,6 +17,8 @@
              * are evaluated first
              */
             'numbers': {
+                'half': 0.5,
+                'quarter': 0.25,
                 'zero': 0,
                 'one': 1,
                 'two': 2,
@@ -149,23 +151,6 @@
         names.reverse();
 
         /**
-         * Function keeps the matches in order by the position
-         * so processing doesn't have to worry about sorting it
-         */
-        var insertMatch = function (arr, obj) {
-            if (arr.length === 0 || arr[arr.length - 1].pos < obj.pos) {
-                arr.push(obj);   
-            } else {
-                for (var i = 0; i < arr.length; i++) {
-                    if (arr[i].pos > obj.pos) {
-                        arr.splice(i, 0, obj);
-                        break;
-                    }
-                }
-            }
-        };
-
-        /**
          * Array for holding number matches
          */
         var matches = [];
@@ -174,25 +159,27 @@
          * Add numerical language matches
          */
         var re = new RegExp('(' + names.join('|') + ')', 'gi');
-        input.replace(re, function () {
-            insertMatch(matches, {
-                pos: arguments[arguments.length - 2],
-                len: arguments[0].length,
-                value: locale.numbers[arguments[0].toLowerCase()] || parseFloat(arguments[0])
+        
+        var match;
+        while ((match = re.exec(input)) !== null) {
+            core.insertMatch(matches, {
+                pos: match.index,
+                len: match[0].length,
+                value: locale.numbers[match[0].toLowerCase()] || parseFloat(match[0])
             });
-        });
+        };
         
         /**
          * Add digit matches
          */
         re = /([+-]{0,1}\d+)/gi;
-        input.replace(re, function () {
-            insertMatch(matches, {
-                pos: arguments[arguments.length - 2],
-                len: arguments[0].length,
-                value: parseFloat(arguments[0])
+        while ((match = re.exec(input)) !== null) {
+            core.insertMatch(matches, {
+                pos: match.index,
+                len: match[0].length,
+                value: parseFloat(match[0])
             });
-        });
+        };
         
         /**
          * Return empty result when there are
@@ -286,7 +273,7 @@
     }
 
     /**
-     * Define DurationTranslator class
+     * Define NumberTranslator class
      */
     var NumberTranslator = function (onTranslate, locale) {
         this.name = 'numbers';

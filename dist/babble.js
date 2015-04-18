@@ -31,6 +31,26 @@
             return obj;   
         }
     };
+    
+    /**
+     * Function keeps the matches in order by the position
+     * so processing doesn't have to worry about sorting it
+     */
+    var insertMatch = function (arr, obj) {
+        if (arr.length === 0 || arr[arr.length - 1].pos < obj.pos) {
+            arr.push(obj);   
+        } else {
+            for (var i = 0; i < arr.length; i++) {
+                if (arr[i].pos > obj.pos) {
+                    arr.splice(i, 0, obj);
+                    break;
+                } else if (arr[i].pos === obj.pos && arr[i].len < obj.len) {
+                    arr.splice(i, 1, obj);
+                    break;
+                }
+            }
+        }
+    };
 
     /**
      * Create parsed results object and Bind functions to the parsed results for sugar
@@ -176,10 +196,11 @@
          * assistants and returns parsed results
          */
         passToAssistants: function (input, locale) {
-            var preParsedOutput = input, preParsedResults = [];
+            var preParsedOutput = input, 
+                preParsedResults = {};
             for (var i = 0; i < this.assistants.length; i++) {
-                preParsedResults.push(get(this.assistants[i]).parse(preParsedOutput, locale));
-                preParsedOutput = preParsedResults[i].digify();
+                preParsedResults[this.assistants[i]] = get(this.assistants[i]).parse(preParsedOutput, locale);
+                preParsedOutput = preParsedResults[this.assistants[i]].digify();
             }
             return {
                 preParsedOutput: preParsedOutput,
@@ -251,6 +272,12 @@
     };
     exports.assign = assign;
     
+    exports.insertMatch = insertMatch;
+    
+    exports.theSpaceBetween = function(input, p1, l1, p2) {
+        return input.slice(p1 + l1, p2);
+    }
+    
 }(typeof exports === 'undefined' ? this['babble'] = this['babble'] || {}: exports));
 /**
  * @module durations
@@ -263,37 +290,37 @@
     var Locales = {
         'en-US': {
             'year': {
-                'full': 'year',
-                'short': 'yr',
-                'symbol': 'y'
+                'full': ['years', 'year'],
+                'short': ['yr'],
+                'symbol': ['y']
             },
             'day': {
-                'full': 'day',
-                'short': 'dy',
-                'symbol': 'd'
+                'full': ['days', 'day'],
+                'short': ['dys', 'dy'],
+                'symbol': ['d']
             },
             'hour': {
-                'full': 'hour',
-                'short': 'hr',
-                'symbol': 'h',
+                'full': ['hours', 'hour'],
+                'short': ['hrs', 'hr'],
+                'symbol': ['h'],
             },
             'minute': {
-                'full': 'minute',
-                'short': 'min',
-                'symbol': 'm',
+                'full': ['minutes', 'minute'],
+                'short': ['mins', 'min'],
+                'symbol': ['m'],
             },
             'second': {
-                'full': 'second',
-                'short': 'sec',
-                'symbol': 's',
+                'full': ['seconds', 'second'],
+                'short': ['secs', 'sec'],
+                'symbol': ['s'],
             },
             'millisecond': {
-                'full': 'millisecond',
-                'short': 'msec',
-                'symbol': 'ms',
+                'full': ['milliseconds', 'millisecond'],
+                'short': ['millisecs', 'millisec', 'msecs', 'msec'],
+                'symbol': ['ms'],
             },
-            'timeJoiners': [',','and',''],
-            'modifierJoiners': ['of an','an','a',''],
+            'timeJoiners': [',',', and',',and','and',''],
+            'modifierJoiners': ['of an','of a','an','a',''],
             'modifiers': {
                 'quarter': 0.25,
                 'half': 0.5
@@ -399,37 +426,37 @@
         
         var info = [];
         if (this.years) {
-            info.push(this.years + ' ' + locale.formatNoun(locale.year.full, this.years));   
+            info.push(this.years + ' ' + locale.formatNoun(locale.year.full[1], this.years));   
         }
         if (unitOfSpecificity === 'days') {
             return info.join(', ');
         }
         if (this.days) {
-            info.push(this.days + ' ' + locale.formatNoun(locale.day.full, this.days));   
+            info.push(this.days + ' ' + locale.formatNoun(locale.day.full[1], this.days));   
         }
         if (unitOfSpecificity === 'days') {
             return info.join(', ');
         }
         if (this.hours) {
-            info.push(this.hours + ' ' + locale.formatNoun(locale.hour.full, this.hours));   
+            info.push(this.hours + ' ' + locale.formatNoun(locale.hour.full[1], this.hours));   
         }
         if (unitOfSpecificity === 'hours') {
             return info.join(', ');
         }
         if (this.minutes) {
-            info.push(this.minutes + ' ' + locale.formatNoun(locale.minute.full, this.minutes));   
+            info.push(this.minutes + ' ' + locale.formatNoun(locale.minute.full[1], this.minutes));   
         }
         if (unitOfSpecificity === 'minutes') {
             return info.join(', ');
         }
         if (this.seconds) {
-            info.push(this.seconds + ' ' + locale.formatNoun(locale.second.full, this.seconds));   
+            info.push(this.seconds + ' ' + locale.formatNoun(locale.second.full[1], this.seconds));   
         }
         if (unitOfSpecificity === 'seconds') {
             return info.join(', ');
         }
         if (this.milliseconds) {
-            info.push(this.milliseconds + ' ' + locale.formatNoun(locale.millisecond.full, this.milliseconds));   
+            info.push(this.milliseconds + ' ' + locale.formatNoun(locale.millisecond.full[1], this.milliseconds));   
         }
         return info.join(', ');
     }
@@ -465,12 +492,6 @@
         }
         
         /**
-         * Run pre-parsing dependencies
-         */
-        var preParse = this.passToAssistants(input, locale);
-        var preParsedOutput = preParse.preParsedOutput, preParsedResults = preParse.preParsedResults;
-        
-        /**
          * These formats come from a project that used a unique approach to parsing,
          * splitting whitespaces and building up the string until it finds a match.
          * This might still be the best way, but trying to avoid that method for now.
@@ -492,189 +513,284 @@
             /((\d)+ *?(milliseconds|millisecond|millisecs|millisec|msecs|msec|ms){1})?/gi
         ];
         
-        /**
-         * Function keeps the matches in order by the position
-         * so processing doesn't have to worry about sorting it
-         */
-        var insertMatch = function (arr, obj) {
-            if (arr.length === 0 || arr[arr.length - 1].pos < obj.pos) {
-                arr.push(obj);   
-            } else {
-                for (var i = 0; i < arr.length; i++) {
-                    if (arr[i].pos > obj.pos) {
-                        arr.splice(i, 0, obj);
-                        break;
-                    } else if (arr[i].pos === obj.pos && arr[i].len < obj.len) {
-                        arr.splice(i, 1, obj);
-                        break;
-                    }
+        var names = []
+            .concat(locale.year.full)
+            .concat(locale.day.full)
+            .concat(locale.hour.full)
+            .concat(locale.minute.full)
+            .concat(locale.second.full)
+            .concat(locale.millisecond.full)
+            .concat(locale.year.short)
+            .concat(locale.day.short)
+            .concat(locale.hour.short)
+            .concat(locale.minute.short)
+            .concat(locale.second.short)
+            .concat(locale.millisecond.short)
+            .concat(locale.year.symbol)
+            .concat(locale.day.symbol)
+            .concat(locale.hour.symbol)
+            .concat(locale.minute.symbol)
+            .concat(locale.second.symbol)
+            .concat(locale.millisecond.symbol);
+        
+        var getValue = function (name) {
+            
+            var isYear = function (name) {
+                if (locale.year.full.indexOf(name) > -1) {
+                    return true;
                 }
+                if (locale.year.short.indexOf(name) > -1) {
+                    return true;
+                }
+                if (locale.year.symbol.indexOf(name) > -1) {
+                    return true;
+                }
+                return false;
+            };
+            
+            var isDay = function (name) {
+                if (locale.day.full.indexOf(name) > -1) {
+                    return true;
+                }
+                if (locale.day.short.indexOf(name) > -1) {
+                    return true;
+                }
+                if (locale.day.symbol.indexOf(name) > -1) {
+                    return true;
+                }
+                return false;
+            };
+
+            var isHour = function (name) {
+                if (locale.hour.full.indexOf(name) > -1) {
+                    return true;
+                }
+                if (locale.hour.short.indexOf(name) > -1) {
+                    return true;
+                }
+                if (locale.hour.symbol.indexOf(name) > -1) {
+                    return true;
+                }
+                return false;
+            };
+            
+            var isMinute = function (name) {
+                if (locale.minute.full.indexOf(name) > -1) {
+                    return true;
+                }
+                if (locale.minute.short.indexOf(name) > -1) {
+                    return true;
+                }
+                if (locale.minute.symbol.indexOf(name) > -1) {
+                    return true;
+                }
+                return false;
+            };
+            
+            var isSecond = function (name) {
+                if (locale.second.full.indexOf(name) > -1) {
+                    return true;
+                }
+                if (locale.second.short.indexOf(name) > -1) {
+                    return true;
+                }
+                if (locale.second.symbol.indexOf(name) > -1) {
+                    return true;
+                }
+                return false;
+            };
+            
+            var isMillisecond = function (name) {
+                if (locale.millisecond.full.indexOf(name) > -1) {
+                    return true;
+                }
+                if (locale.millisecond.short.indexOf(name) > -1) {
+                    return true;
+                }
+                if (locale.millisecond.symbol.indexOf(name) > -1) {
+                    return true;
+                }
+                return false;
+            };
+            
+            if (isYear(name)) {
+                return yearInt;   
             }
+            if (isDay(name)) {
+                return dayInt;
+            }
+            if (isHour(name)) {
+                return hourInt;   
+            }
+            if (isMinute(name)) {
+                return minuteInt;
+            }
+            if (isSecond(name)) {
+                return secondInt;
+            }
+            if (isMillisecond(name)) {
+                return 1;
+            }
+            throw new Error('Invalid duration name');
         };
 
+
+        /**
+         * Run pre-parsing dependencies
+         */
+        var preParse = this.passToAssistants(input, locale);
+        var preParsedOutput = preParse.preParsedOutput, 
+            preParsedResults = preParse.preParsedResults;
+        
         /**
          * Array for holding number matches
          */
         var matches = [];
-
-        /**
-         * Add duration language matches
-         */
-        for (var i = 0; i < formats.length; i++) {
-            preParsedOutput.replace(formats[i], function () {
-                //console.log(arguments);
-                if (arguments[0].trim() !== '') {
-                    insertMatch(matches, {
-                        pos: arguments[arguments.length - 2],
-                        len: arguments[0].length,
-                        value: arguments[0]
-                    });
-                }
+        
+        //http://leaverou.github.io/regexplained/
+        var match;
+        // use negative lookahead to avoid matching partial words 
+        // without consuming a digit that could otherwise be a part
+        // of the following match
+        var re = new RegExp('(\\b|\\d)(' + names.join('|') + ')(?![a-zA-Z])', 'gi')
+        while ((match = re.exec(input)) !== null) {
+            var truePos = match.index + (match[1] || '').length;
+            core.insertMatch(matches, {
+                kind: 'duration.name',
+                pos: truePos,
+                text: match[2],
+                value: getValue(match[2])
             });
-        }
+        };
         
         /**
          * Add numerical language matches
          */
-        preParsedOutput.replace(/((\d)+:(\d)+(:(\d)+)?(:(\d)+)?(\.(\d){1,3})?)/gi, function () {
-            
+        //input.replace(/((\d)+:(\d)+(:(\d)+)?(:(\d)+)?(\.(\d){1,3})?)/gi, function () {
+        re = /((\d)+:(\d)+(:(\d)+)?(:(\d)+)?(\.(\d){1,3})?)/gi;
+        while ((match = re.exec(input)) !== null) {
             if (arguments[0].trim() !== '') {
-                insertMatch(matches, {
-                    pos: arguments[arguments.length - 2],
-                    len: arguments[0].length,
-                    value: arguments[0]
+                core.insertMatch(matches, {
+                    kind: 'duration.full',
+                    pos: match.index,
+                    text: match[0],
+                    value: null
                 });
             }
-        });
+        };
         
-        
+        /**
+         * Get token closest to current match that is 
+         * between the previous and current match.
+         * As always, a collection of tokens is assumed 
+         * to already be ordered by pos prop.
+         */
+        var getTokenModifier = function (tokens, match, previousMatch) {
+            
+            var lowerBound = 0;
+            var upperBound = match.pos;
+            if (typeof previousMatch !== 'undefined' && previousMatch !== null) {
+                lowerBound = previousMatch.pos + previousMatch.text.length;
+            }
+            
+            var i = 0,
+                token = null;
+            
+            for (var i = 0; i < tokens.length; i++) {
+                if (lowerBound <= tokens[i].pos && tokens[i].pos < upperBound) {
+                    token = tokens[i];
+                } else if (tokens[i].pos >= upperBound) {
+                    break;   
+                }
+            }
+            
+            return token;
+        }
         
         if (matches.length === 0) {
             return new core.ParsedResult(input, [], preParsedOutput, preParsedResults); 
         }
 
+        var results = [];
         var segments = [];
+        var previousMatch = null;
         for (var i = 0; i < matches.length; i++) {
-            var text = preParsedOutput.slice(matches[i].pos, matches[i].pos + matches[i].len);
-            segments.push({ 
-                kind: 'duration', 
-                pos: matches[i].pos, 
-                value: 0, 
-                text: text
-            });
             
-            if (text.indexOf(':') > 0) {
-                var parts = text.split(':');
-                if (parts.length === 2) {
-                    // hours and minutes
-                    segments[i].value = 
-                        (hourInt * parseInt(parts[0])) +
-                        (minuteInt * parseInt(parts[1]));
-                } else if (parts.length === 3) {
-                    var dec = parts[2].split('.');
-                    var whole = dec[0];
-                    if (dec.length > 1) {
-                        if (String(dec[1]).length === 1) {
-                            dec = '.00' + dec[1];
-                        } else if (String(dec[1]).length === 2) {
-                            dec = '.0' + dec[1];
-                        } else {
-                            dec = '.' + dec[1];
-                        }
-                    } else {
-                        dec = '';
-                    }
-                    // hours, minutes and seconds
-                    segments[i].value = 
-                        (hourInt * parseInt(parts[0])) +
-                        (minuteInt * parseInt(parts[1])) +
-                        (secondInt * parseFloat(whole + dec));
-                } else if (parts.length === 4) {
-                    var dec = parts[3].split('.');
-                    var whole = dec[0];
-                    if (dec.length > 1) {
-                        if (String(dec[1]).length === 1) {
-                            dec = '.00' + dec[1];
-                        } else if (String(dec[1]).length === 2) {
-                            dec = '.0' + dec[1];
-                        } else {
-                            dec = '.' + dec[1];
-                        }
-                    } else {
-                        dec = '';
-                    }
-                    
-                    // days, hours, minutes and seconds
-                    segments[i].value = 
-                        (dayInt * parseInt(parts[0])) +
-                        (hourInt * parseInt(parts[1])) +
-                        (minuteInt * parseInt(parts[2])) +
-                        (secondInt * parseFloat(whole + dec));
+            if (matches[i].kind === 'duration.full') {
+                
+                var timeSegments = matches[i].text.split(':');
+                var timeSum = 0;
+                if (timeSegments.length === 4) {
+                    timeSum += parseFloat(timeSegments[0]) * dayInt;
+                    timeSum += parseInt(timeSegments[1]) * hourInt;
+                    timeSum += parseInt(timeSegments[2]) * minuteInt;
+                    timeSum += parseFloat(timeSegments[3]) * secondInt;
+                } else if (timeSegments.length === 3) {
+                    timeSum += parseInt(timeSegments[0]) * hourInt;
+                    timeSum += parseInt(timeSegments[1]) * minuteInt;
+                    timeSum += parseFloat(timeSegments[2]) * secondInt;
+                } else if (timeSegments.length === 2) {
+                    timeSum += parseInt(timeSegments[0] * hourInt);
+                    timeSum += parseInt(timeSegments[1] * minuteInt);
                 }
-            } else {
-
-                var reYears = / *?(years|year|yrs|yr|y)$/gi;
-                var reDays = / *?(days|day|dys|dy|d)$/gi;
-                var reHours = / *?(hours|hour|hrs|hr|h)$/gi;
-                var reMinutes = / *?(minutes|minute|mins|min|m)$/gi;
-                var reSeconds = / *?(seconds|second|secs|sec|s)$/gi;
-                var reMilliseconds = / *?(milliseconds|millisecond|millisecs|millisec|msecs|msec|ms)$/gi;
-                var reHalf = /(half an|half a|half of an|half of a|half of|half)/gi;
-                var reQuarter = /(quarter of an|quarter of a|quarter of|quarter)/gi;
-                var reOne = /(an|a)/gi;
-
-                var number = 0;
-                text = text.replace(reMilliseconds, '');
-                text = text.replace(reSeconds, function () {
-                    number = secondInt;
-                    return '';
+                
+                
+                segments.push({
+                    kind: 'duration',
+                    pos: matches[i].pos,
+                    text: matches[i].text,
+                    value: timeSum
                 });
-                text = text.replace(reYears, function () {
-                    number = yearInt;
-                    return '';
-                });
-                text = text.replace(reDays, function () {
-                    number = dayInt;
-                    return '';
-                });
-                text = text.replace(reHours, function () {
-                    number = hourInt;
-                    return '';
-                });
-
-                text = text.replace(reMinutes, function () {
-                    number = minuteInt;
-                    return '';
-                });
-
-                text = text.replace(reHalf, function () { 
-                    number *= 0.5;
-                    return '';
-                });
-                text = text.replace(reQuarter, function () { 
-                    number *= 0.25;
-                    return '';
-                });
-                text = text.replace(reOne, '');
-
-                var multiplier = parseInt(text);
-                if (multiplier.toString() === 'NaN') {
-                    multiplier = 1;
-                }
-                if (number === 0) {
-                    number = 1;   
-                }
-                segments[i].value = multiplier * number;
+                continue;
             }
+            
+            /**
+             * Find number token that modifies this duration match
+             */
+            var numToken = getTokenModifier(preParsedResults['numbers'].tokens, matches[i], previousMatch);
+            
+            /**
+             * This match segment has no modifier
+             */
+            if (numToken === null) {
+                segments.push({
+                    kind: 'segment',
+                    pos: matches[i].pos,
+                    text: matches[i].text,
+                    value: matches[i].value
+                });
+                continue;
+            }
+            
+            /**
+             * Check i
+             */
+            var theSpaceBetween = input.slice(numToken.pos + numToken.text.length, matches[i].pos);
+            if (locale.modifierJoiners.indexOf(theSpaceBetween.trim()) > -1) {
+                segments.push({
+                    kind: 'segment',
+                    pos: numToken.pos,
+                    text: input.slice(numToken.pos, matches[i].pos + matches[i].text.length),
+                    value: numToken.value * matches[i].value
+                });
+            }
+            
+            /**
+             * Set previousMatch to current match for use in next iteration
+             */
+            previousMatch = matches[i];
         }
         
-        var results = [];
+        /**
+         * Combine segments
+         */
+        
         var prev = null;
         var next = null;
         for (var i = 0; i < segments.length; i++) {
             next = segments[i];
             if (prev) {
-                var joiner = preParsedOutput.slice(prev.pos + prev.text.length, next.pos);
+                var joiner = input.slice(prev.pos + prev.text.length, next.pos);
                 if (locale.timeJoiners.indexOf(joiner.trim()) > -1) {
                     next.value += prev.value;
                     next.text = preParsedOutput.slice(prev.pos, next.pos + next.text.length);
@@ -741,66 +857,6 @@
     'use strict';
     
     /**
-     * Define core and preparse dependencies
-     */
-    if (typeof require !== 'undefined') {
-        var core = require('./core.js');
-        var numbers = require('./numbers.js');
-    } else {
-        var core = window['babble']
-    }
-    var Preparsers = [
-        numbers || window['numbers']
-    ];
-    
-    /**
-     * This takes any string, locates groups of 
-     * spelled out numbers and converts them to digits
-     * @return {number} Returns the processed input string.
-     */
-    function digify () {
-        var input = this.preParsedOutput || this.input;
-        for (var i = 0; i < this.tokens.length; i++) {
-            input = input.replace(this.tokens[i].text, this.tokens[i].value);   
-        }
-        return input;
-    }
-
-    /**
-     * Create parsed results object and Bind functions to the parsed results for sugar
-     */
-    function ParsedResult(input, tokens, preParsedOutput, preParsedResults) {
-        this.input = input;
-        this.tokens = tokens;
-        this.preParsedOutput = preParsedOutput || null;
-        this.preParsedResults = preParsedResults || null;
-        this.digify = digify.bind(this);
-    }
-
-    var Locales = {
-        'en-US': {
-            'hours': [
-                'h', 'hr', 'hrs', 'hour', 'hours'
-            ],
-            'minutes': [
-                'm','min','mins','minute', 'minutes'
-            ],
-            'joiners': [',','and','']
-        }
-    };
-    
-    Locales['de-DE'] = {
-        'hours': [
-            'h', 'hr', 'ohre'
-        ],
-        'minutes': [
-            'm','min','minuten'   
-        ]
-    };
-    
-    
-    
-    /**
      * This takes any string, locates groups of 
      * durations and returns results
      */
@@ -811,145 +867,46 @@
          * and default to the CurrentLocale
          * if not specified.
          */
-        if (locale && Locales[locale]) {
-            locale = Locales[locale];
-        } else {
-            locale = Locales['en-US'];
-        }
-        
-        /**
-         * Run pre-parsing dependencies
-         */ 
-        var preParsedOutput = input, preParsedResults = [];
-        if (Preparsers && Preparsers.length > 0) {
-            for (var i = 0; i < Preparsers.length; i++) {
-                preParsedResults.push(Preparsers[i].parse(preParsedOutput, locale));
-                preParsedOutput = preParsedResults[i].digify();
-            }
-        }
-        
-        /**
-         * These formats come from a project that used a unique approach to parsing,
-         * splitting whitespaces and building up the string until it finds a match.
-         * This might still be the best way, but trying to avoid that method for now.
-         */
-        
-        var formats = [
-            // match positive integers
-            // /(\d+)/gi, // add this in when in 'expect' mode - a mode where we know in advance that we are getting duration type input
-            // match positive decimal numbers (optional numbers 
-            // after decimal and optional hours nouns)
-            // /(\d+)\.(\d+)?(hours|hour|hrs|hr|h)?/gi,
-            // match #d#h#m format, each part is optional
-            // /((\d)+ *?(days|day|dys|dy|d){1})? *?((\d)+ *?(hours|hour|hrs|hr|h){1})? *?((\d)+ *?(minutes|minute|mins|min|m){1})?/gi,
-            
-            /((\d)+ *?(days|day|dys|dy|d){1})?/gi,
-            /((\d)+ *?(hours|hour|hrs|hr|h){1})?/gi,
-            /((\d)+ *?(minutes|minute|mins|min|m){1})?/gi,
-            /((\d)+ *?(seconds|second|secs|sec|s){1})?/gi,
-            /((\d)+ *?(milliseconds|millisecond|millisecs|millisec|msecs|msec|ms){1})?/gi,
-            // match #:#:# format
-            /(\d+)?:?(\d+):(\d+)/gi
-        ];
-        
-        /**
-         * Function keeps the matches in order by the position
-         * so processing doesn't have to worry about sorting it
-         */
-        var insertByPosition = function (arr, obj) {
-            if (arr.length === 0 || arr[arr.length - 1].pos < obj.pos) {
-                arr.push(obj);   
-            } else {
-                for (var i = 0; i < arr.length; i++) {
-                    if (arr[i].pos > obj.pos) {
-                        arr.splice(i, 0, obj);
-                        break;
-                    } else if (arr[i].pos === obj.pos && arr[i].len < obj.len) {
-                        arr.splice(i, 1, obj);
-                        break;
-                    }
-                }
-            }
-        };
-
-        /**
-         * Array for holding number matches
-         */
-        var matches = [];
-
-        /**
-         * Add duration language matches
-         */
-        for (var i = 0; i < formats.length; i++) {
-            preParsedOutput.replace(formats[i], function () {
-                //console.log(arguments);
-                if (arguments[0].trim() !== '') {
-                    insertByPosition(matches, {
-                        pos: arguments[arguments.length - 2],
-                        len: arguments[0].length,
-                        value: arguments[0]
-                    });
-                }
-            });
-        }
-        
-        /**
-         * Add numerical language matches
-         */
-        if (matches.length === 0) {
-            return new core.ParsedResult(input, [], preParsedOutput, preParsedResults); 
-        }
-
-        var segments = [];
-        for (var i = 0; i < matches.length; i++) {
-            var text = preParsedOutput.slice(matches[i].pos, matches[i].pos + matches[i].len);
-            segments.push({ 
-                kind: 'duration', 
-                pos: matches[i].pos, 
-                value: 0, 
-                text: text
-            });
-            
-            var reDays = / *?(days|day|dys|dy|d)$/gi;
-            var reHours = / *?(hours|hour|hrs|hr|h)$/gi;
-            var reMinutes = / *?(minutes|minute|mins|min|m)$/gi;
-            var reSeconds = / *?(seconds|second|secs|sec|s)$/gi;
-            var reMilliseconds = / *?(milliseconds|millisecond|millisecs|millisec|msecs|msec|ms)$/gi;
-            
-            text = text.replace(reDays, ' * 24 * 60 * 60 * 1000');
-            text = text.replace(reHours, ' * 60 * 60 * 1000');
-            text = text.replace(reMinutes, ' * 60 * 1000');
-            text = text.replace(reMilliseconds, '');
-            text = text.replace(reSeconds, ' * 1000');
-            segments[i].value = parseFloat(eval(text));
-        }
-        
-        var results = [];
-        var prev = null;
-        var next = null;
-        for (var i = 0; i < segments.length; i++) {
-            next = segments[i];
-            if (prev) {
-                var joiner = preParsedOutput.slice(prev.pos + prev.text.length, next.pos);
-                if (locale.joiners.indexOf(joiner.trim()) > -1) {
-                    next.value += prev.value;
-                    next.text = preParsedOutput.slice(prev.pos, next.pos + next.text.length);
-                    next.pos = prev.pos;
-                } else {
-                    results.push(prev);
-                }
-            }
-            prev = segments[i];
-        }
-        results.push(next);
-        
-        /**
-         * Create parsed results object and Bind functions to the parsed results for sugar
-         */
-        return new core.ParsedResult(input, results, preParsedOutput, preParsedResults);
+//        if (locale && Locales[locale]) {
+//            locale = Locales[locale];
+//        } else {
+//            locale = Locales['en-US'];
+//        }
+//        
     };
+    
+    /**
+     * Define core and preparse dependencies
+     */
+    if (typeof require !== 'undefined') {
+        var core = require('./core.js');
+    } else {
+        var core = window['babble'];
+    }
 
-}(typeof exports === 'undefined' ? this['moments'] = {}: exports));
+    /**
+     * Define MomentTranslator class
+     */
+    var MomentTranslator = function (onTranslate, locale) {
+        this.name = 'moments';
+        this.parse = parse;
+        core.BaseTranslator.call(this, onTranslate, locale);
+    }
+    MomentTranslator.prototype = Object.create(core.BaseTranslator.prototype);
+    MomentTranslator.prototype.constructor = MomentTranslator;
+    exports.MomentTranslator = MomentTranslator;
+    
+    /**
+     * Register translator with the core list
+     */
+//    var defaultLocale = 'en-US';
+//    var locales = [];
+//    for (var name in Locales) {
+//      locales.push(name);
+//    }
+//    core.register('moments', MomentTranslator, defaultLocale, locales);
+
+}(typeof exports === 'undefined' ? this['babble'] = this['babble'] || {} : exports));
 /**
  * @module numbers
  * @dependency core
@@ -969,6 +926,8 @@
              * are evaluated first
              */
             'numbers': {
+                'half': 0.5,
+                'quarter': 0.25,
                 'zero': 0,
                 'one': 1,
                 'two': 2,
@@ -1101,23 +1060,6 @@
         names.reverse();
 
         /**
-         * Function keeps the matches in order by the position
-         * so processing doesn't have to worry about sorting it
-         */
-        var insertMatch = function (arr, obj) {
-            if (arr.length === 0 || arr[arr.length - 1].pos < obj.pos) {
-                arr.push(obj);   
-            } else {
-                for (var i = 0; i < arr.length; i++) {
-                    if (arr[i].pos > obj.pos) {
-                        arr.splice(i, 0, obj);
-                        break;
-                    }
-                }
-            }
-        };
-
-        /**
          * Array for holding number matches
          */
         var matches = [];
@@ -1126,25 +1068,27 @@
          * Add numerical language matches
          */
         var re = new RegExp('(' + names.join('|') + ')', 'gi');
-        input.replace(re, function () {
-            insertMatch(matches, {
-                pos: arguments[arguments.length - 2],
-                len: arguments[0].length,
-                value: locale.numbers[arguments[0].toLowerCase()] || parseFloat(arguments[0])
+        
+        var match;
+        while ((match = re.exec(input)) !== null) {
+            core.insertMatch(matches, {
+                pos: match.index,
+                len: match[0].length,
+                value: locale.numbers[match[0].toLowerCase()] || parseFloat(match[0])
             });
-        });
+        };
         
         /**
          * Add digit matches
          */
         re = /([+-]{0,1}\d+)/gi;
-        input.replace(re, function () {
-            insertMatch(matches, {
-                pos: arguments[arguments.length - 2],
-                len: arguments[0].length,
-                value: parseFloat(arguments[0])
+        while ((match = re.exec(input)) !== null) {
+            core.insertMatch(matches, {
+                pos: match.index,
+                len: match[0].length,
+                value: parseFloat(match[0])
             });
-        });
+        };
         
         /**
          * Return empty result when there are
@@ -1238,7 +1182,7 @@
     }
 
     /**
-     * Define DurationTranslator class
+     * Define NumberTranslator class
      */
     var NumberTranslator = function (onTranslate, locale) {
         this.name = 'numbers';
