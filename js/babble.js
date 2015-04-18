@@ -6,19 +6,6 @@
     'use strict';
     
     /**
-     * This takes any string, locates groups of 
-     * spelled out numbers and converts them to digits
-     * @return {number} Returns the processed input string.
-     */
-    var digify = function () {
-        var input = this.preParsedOutput || this.input;
-        for (var i = 0; i < this.tokens.length; i++) {
-            input = input.replace(this.tokens[i].text, toStringIfExists(this.tokens[i].value));
-        }
-        return input;
-    };
-    
-    /**
      * Returns the given object's toString representation
      * if it is defined, otherwise returns the given object.
      * @param {object} The object to get a string if toString exists.
@@ -31,12 +18,64 @@
             return obj;   
         }
     };
+
+    /**
+     * TODO: Describe this
+     */
+    var assign = function (name, speaker) {
+        var event = null, 
+            locale = null, 
+            onTranslate = null;
+        
+        if (arguments.length < 3 || typeof arguments[arguments.length - 1] !== 'function') {
+            throw new TypeError('Unexpected number of arguments');   
+        }
+        
+        onTranslate = arguments[arguments.length - 1];
+        if (arguments.length > 3) {
+            event = arguments[2];
+        }
+        if (arguments.length > 4) {
+            locale = arguments[3];
+        }
+        
+        var translator = get(name, locale);
+        translator.listen(speaker, event, onTranslate);
+    };
+
+    /**
+     * Get token closest to current match that is 
+     * between the previous and current match.
+     * As always, a collection of tokens is assumed 
+     * to already be ordered by pos prop.
+     */
+    var getTokenModifier = function (tokens, match, previousMatch) {
+
+        var lowerBound = 0;
+        var upperBound = match.pos;
+        if (typeof previousMatch !== 'undefined' && previousMatch !== null) {
+            lowerBound = previousMatch.pos + previousMatch.text.length;
+        }
+
+        var i = 0,
+            token = null;
+
+        for (var i = 0; i < tokens.length; i++) {
+            if (lowerBound <= tokens[i].pos && tokens[i].pos < upperBound) {
+                token = tokens[i];
+            } else if (tokens[i].pos >= upperBound) {
+                break;   
+            }
+        }
+
+        return token;
+    };
     
     /**
      * Function keeps the matches in order by the position
      * so processing doesn't have to worry about sorting it
      */
-    var insertMatch = function (arr, obj) {
+    var insertToken = function (arr, obj) {
         if (arr.length === 0 || arr[arr.length - 1].pos < obj.pos) {
             arr.push(obj);   
         } else {
@@ -60,8 +99,34 @@
         this.tokens = tokens;
         this.preParsedOutput = preParsedOutput || null;
         this.preParsedResults = preParsedResults || null;
-        this.digify = digify.bind(this);
     };
+    
+    ParsedResult.prototype = {
+        /**
+         * This takes any string, locates groups of 
+         * spelled out numbers and converts them to digits
+         * @return {number} Returns the processed input string.
+         */
+        digify: function () {
+            var input = this.preParsedOutput || this.input;
+            for (var i = 0; i < this.tokens.length; i++) {
+                input = input.replace(this.tokens[i].text, toStringIfExists(this.tokens[i].value));
+            }
+            return input;
+        }
+     };
+    
+    /**
+     * Tokens are the gold nuggets of lexical analysis
+     */
+    var Token = function (value, kind, pos, text, tokens, certainty) {
+        this.value = value;
+        this.kind = kind;
+        this.pos = pos;
+        this.text = text;
+        this.tokens = tokens || [];
+        this.certainty = certainty || 0;
+    }
 
     var BaseTranslator = function (onTranslate, locale) {
 
@@ -214,6 +279,7 @@
      */
     exports.ParsedResult = ParsedResult;
     exports.BaseTranslator = BaseTranslator;
+    exports.Token = Token;
     
     /**
      * Expose method used for registering translators with
@@ -247,36 +313,11 @@
     };
     exports.get = get;
     
-    /**
-     * TODO: Describe this
-     */
-    var assign = function (name, speaker) {
-        var event = null, 
-            locale = null, 
-            onTranslate = null;
-        
-        if (arguments.length < 3 || typeof arguments[arguments.length - 1] !== 'function') {
-            throw new TypeError('Unexpected number of arguments');   
-        }
-        
-        onTranslate = arguments[arguments.length - 1];
-        if (arguments.length > 3) {
-            event = arguments[2];
-        }
-        if (arguments.length > 4) {
-            locale = arguments[3];
-        }
-        
-        var translator = get(name, locale);
-        translator.listen(speaker, event, onTranslate);
-    };
     exports.assign = assign;
+
+    exports.getTokenModifier = getTokenModifier;
     
-    exports.insertMatch = insertMatch;
-    
-    exports.theSpaceBetween = function(input, p1, l1, p2) {
-        return input.slice(p1 + l1, p2);
-    }
+    exports.insertToken = insertToken;
     
 }(typeof exports === 'undefined' ? this['babble'] = this['babble'] || {}: exports));
 /**
@@ -482,6 +523,176 @@
         return this.value;
     }
 
+    /**
+     * Return whether name is variation of millenium
+     * @param {string} A recognized duration name
+     */
+    var isMillennium = function (name, locale) {
+        if (locale.millennium.full.indexOf(name) > -1) {
+            return true;
+        }
+        return false;
+    };
+
+    /**
+     * Return whether name is variation of century
+     * @param {string} A recognized duration name
+     */
+    var isCentury = function (name, locale) {
+        if (locale.century.full.indexOf(name) > -1) {
+            return true;
+        }
+        return false;
+    };
+
+    /**
+     * Return whether name is variation of decade
+     * @param {string} A recognized duration name
+     */
+    var isDecade = function (name, locale) {
+        if (locale.decade.full.indexOf(name) > -1) {
+            return true;
+        }
+        return false;
+    };
+
+    /**
+     * Return whether name is variation of year
+     * @param {string} A recognized duration name
+     */
+    var isYear = function (name, locale) {
+        if (locale.year.full.indexOf(name) > -1) {
+            return true;
+        }
+        if (locale.year.short.indexOf(name) > -1) {
+            return true;
+        }
+        if (locale.year.symbol.indexOf(name) > -1) {
+            return true;
+        }
+        return false;
+    };
+
+    /**
+     * Return whether name is variation of day
+     * @param {string} A recognized duration name
+     */
+    var isDay = function (name, locale) {
+        if (locale.day.full.indexOf(name) > -1) {
+            return true;
+        }
+        if (locale.day.short.indexOf(name) > -1) {
+            return true;
+        }
+        if (locale.day.symbol.indexOf(name) > -1) {
+            return true;
+        }
+        return false;
+    };
+
+    /**
+     * Return whether name is variation of hour
+     * @param {string} A recognized duration name
+     */
+    var isHour = function (name, locale) {
+        if (locale.hour.full.indexOf(name) > -1) {
+            return true;
+        }
+        if (locale.hour.short.indexOf(name) > -1) {
+            return true;
+        }
+        if (locale.hour.symbol.indexOf(name) > -1) {
+            return true;
+        }
+        return false;
+    };
+
+    /**
+     * Return whether name is variation of minute
+     * @param {string} A recognized duration name
+     */
+    var isMinute = function (name, locale) {
+        if (locale.minute.full.indexOf(name) > -1) {
+            return true;
+        }
+        if (locale.minute.short.indexOf(name) > -1) {
+            return true;
+        }
+        if (locale.minute.symbol.indexOf(name) > -1) {
+            return true;
+        }
+        return false;
+    };
+
+    /**
+     * Return whether name is variation of second
+     * @param {string} A recognized duration name
+     */
+    var isSecond = function (name, locale) {
+        if (locale.second.full.indexOf(name) > -1) {
+            return true;
+        }
+        if (locale.second.short.indexOf(name) > -1) {
+            return true;
+        }
+        if (locale.second.symbol.indexOf(name) > -1) {
+            return true;
+        }
+        return false;
+    };
+
+    /**
+     * Return whether name is variation of millisecond
+     * @param {string} A recognized duration name
+     */
+    var isMillisecond = function (name, locale) {
+        if (locale.millisecond.full.indexOf(name) > -1) {
+            return true;
+        }
+        if (locale.millisecond.short.indexOf(name) > -1) {
+            return true;
+        }
+        if (locale.millisecond.symbol.indexOf(name) > -1) {
+            return true;
+        }
+        return false;
+    };
+
+    /**
+     * Return duration value in milliseconds
+     * @param {string} A recognized duration name
+     */
+    var getValue = function (name, locale) {
+
+        if (isMillennium(name, locale)) {
+            return millenniumInt;   
+        }
+        if (isCentury(name, locale)) {
+            return centuryInt;   
+        }
+        if (isDecade(name, locale)) {
+            return decadeInt;   
+        }
+        if (isYear(name, locale)) {
+            return yearInt;   
+        }
+        if (isDay(name, locale)) {
+            return dayInt;
+        }
+        if (isHour(name, locale)) {
+            return hourInt;   
+        }
+        if (isMinute(name, locale)) {
+            return minuteInt;
+        }
+        if (isSecond(name, locale)) {
+            return secondInt;
+        }
+        if (isMillisecond(name, locale)) {
+            return 1;
+        }
+        throw new Error('Invalid duration name');
+    };
     
     /**
      * This takes any string, locates groups of 
@@ -499,29 +710,11 @@
         } else {
             locale = Locales[defaultLocale];
         }
-        
+
         /**
-         * These formats come from a project that used a unique approach to parsing,
-         * splitting whitespaces and building up the string until it finds a match.
-         * This might still be the best way, but trying to avoid that method for now.
+         * Build list of duration words
+         * for use in regular expression
          */
-        
-        var formats = [
-            // match positive integers
-            // /(\d+)/gi, // add this in when in 'expect' mode - a mode where we know in advance that we are getting duration type input
-            // match positive decimal numbers (optional numbers 
-            // after decimal and optional hours nouns)
-            // /(\d+)\.(\d+)?(hours|hour|hrs|hr|h)?/gi,
-            // match #d#h#m format, each part is optional
-            // /((\d)+ *?(days|day|dys|dy|d){1})? *?((\d)+ *?(hours|hour|hrs|hr|h){1})? *?((\d)+ *?(minutes|minute|mins|min|m){1})?/gi,
-            /(((\d)+|half of an |half of a |half an |half a |half|quarter|an |a ) *?(years|year|yrs|yr|y){1})?/gi,
-            /(((\d)+|half of an |half of a |half an |half a |half|quarter|an |a ) *?(days|day|dys|dy|d){1})?/gi,
-            /(((\d)+|half of an |half of a |half an |half a |half|quarter|an |a ) *?(hours|hour|hrs|hr|h){1})?/gi,
-            /(((\d)+|half of an |half of a |half an |half a |half|quarter|an |a ) *?(minutes|minute|mins|min|m){1})?/gi,
-            /(((\d)+|half of an |half of a |half an |half a |half|quarter|an |a ) *?(seconds|second|secs|sec|s){1})?/gi,
-            /((\d)+ *?(milliseconds|millisecond|millisecs|millisec|msecs|msec|ms){1})?/gi
-        ];
-        
         var names = []
             .concat(locale.millennium.full)
             .concat(locale.century.full)
@@ -544,136 +737,6 @@
             .concat(locale.minute.symbol)
             .concat(locale.second.symbol)
             .concat(locale.millisecond.symbol);
-        
-        var getValue = function (name) {
-            var isMillennium = function (name) {
-                if (locale.millennium.full.indexOf(name) > -1) {
-                    return true;
-                }
-                return false;
-            };
-            
-            var isCentury = function (name) {
-                if (locale.century.full.indexOf(name) > -1) {
-                    return true;
-                }
-                return false;
-            };
-            
-            var isDecade = function (name) {
-                if (locale.decade.full.indexOf(name) > -1) {
-                    return true;
-                }
-                return false;
-            };
-            
-            var isYear = function (name) {
-                if (locale.year.full.indexOf(name) > -1) {
-                    return true;
-                }
-                if (locale.year.short.indexOf(name) > -1) {
-                    return true;
-                }
-                if (locale.year.symbol.indexOf(name) > -1) {
-                    return true;
-                }
-                return false;
-            };
-            
-            var isDay = function (name) {
-                if (locale.day.full.indexOf(name) > -1) {
-                    return true;
-                }
-                if (locale.day.short.indexOf(name) > -1) {
-                    return true;
-                }
-                if (locale.day.symbol.indexOf(name) > -1) {
-                    return true;
-                }
-                return false;
-            };
-
-            var isHour = function (name) {
-                if (locale.hour.full.indexOf(name) > -1) {
-                    return true;
-                }
-                if (locale.hour.short.indexOf(name) > -1) {
-                    return true;
-                }
-                if (locale.hour.symbol.indexOf(name) > -1) {
-                    return true;
-                }
-                return false;
-            };
-            
-            var isMinute = function (name) {
-                if (locale.minute.full.indexOf(name) > -1) {
-                    return true;
-                }
-                if (locale.minute.short.indexOf(name) > -1) {
-                    return true;
-                }
-                if (locale.minute.symbol.indexOf(name) > -1) {
-                    return true;
-                }
-                return false;
-            };
-            
-            var isSecond = function (name) {
-                if (locale.second.full.indexOf(name) > -1) {
-                    return true;
-                }
-                if (locale.second.short.indexOf(name) > -1) {
-                    return true;
-                }
-                if (locale.second.symbol.indexOf(name) > -1) {
-                    return true;
-                }
-                return false;
-            };
-            
-            var isMillisecond = function (name) {
-                if (locale.millisecond.full.indexOf(name) > -1) {
-                    return true;
-                }
-                if (locale.millisecond.short.indexOf(name) > -1) {
-                    return true;
-                }
-                if (locale.millisecond.symbol.indexOf(name) > -1) {
-                    return true;
-                }
-                return false;
-            };
-            
-            if (isMillennium(name)) {
-                return millenniumInt;   
-            }
-            if (isCentury(name)) {
-                return centuryInt;   
-            }
-            if (isDecade(name)) {
-                return decadeInt;   
-            }
-            if (isYear(name)) {
-                return yearInt;   
-            }
-            if (isDay(name)) {
-                return dayInt;
-            }
-            if (isHour(name)) {
-                return hourInt;   
-            }
-            if (isMinute(name)) {
-                return minuteInt;
-            }
-            if (isSecond(name)) {
-                return secondInt;
-            }
-            if (isMillisecond(name)) {
-                return 1;
-            }
-            throw new Error('Invalid duration name');
-        };
 
 
         /**
@@ -690,17 +753,17 @@
         
         //http://leaverou.github.io/regexplained/
         var match;
-        // use negative lookahead to avoid matching partial words 
+        // use positive lookahead to only match full words (\b|\d) 
         // without consuming a digit that could otherwise be a part
         // of the following match
-        var re = new RegExp('(\\b|\\d)(' + names.join('|') + ')(?![a-zA-Z])', 'gi')
+        var re = new RegExp('(\\b|\\d)(' + names.join('|') + ')(?:(\\b|\\d))', 'gi')
         while ((match = re.exec(input)) !== null) {
             var truePos = match.index + (match[1] || '').length;
-            core.insertMatch(matches, {
+            core.insertToken(matches, {
                 kind: 'duration.name',
                 pos: truePos,
                 text: match[2],
-                value: getValue(match[2])
+                value: getValue(match[2], locale)
             });
         };
         
@@ -711,7 +774,7 @@
         re = /((\d)+:(\d)+(:(\d)+)?(:(\d)+)?(\.(\d){1,3})?)/gi;
         while ((match = re.exec(input)) !== null) {
             if (arguments[0].trim() !== '') {
-                core.insertMatch(matches, {
+                core.insertToken(matches, {
                     kind: 'duration.full',
                     pos: match.index,
                     text: match[0],
@@ -720,33 +783,7 @@
             }
         };
         
-        /**
-         * Get token closest to current match that is 
-         * between the previous and current match.
-         * As always, a collection of tokens is assumed 
-         * to already be ordered by pos prop.
-         */
-        var getTokenModifier = function (tokens, match, previousMatch) {
-            
-            var lowerBound = 0;
-            var upperBound = match.pos;
-            if (typeof previousMatch !== 'undefined' && previousMatch !== null) {
-                lowerBound = previousMatch.pos + previousMatch.text.length;
-            }
-            
-            var i = 0,
-                token = null;
-            
-            for (var i = 0; i < tokens.length; i++) {
-                if (lowerBound <= tokens[i].pos && tokens[i].pos < upperBound) {
-                    token = tokens[i];
-                } else if (tokens[i].pos >= upperBound) {
-                    break;   
-                }
-            }
-            
-            return token;
-        }
+
         
         if (matches.length === 0) {
             return new core.ParsedResult(input, [], preParsedOutput, preParsedResults); 
@@ -788,7 +825,7 @@
             /**
              * Find number token that modifies this duration match
              */
-            var numToken = getTokenModifier(preParsedResults['numbers'].tokens, matches[i], previousMatch);
+            var numToken = core.getTokenModifier(preParsedResults['numbers'].tokens, matches[i], previousMatch);
             
             /**
              * This match segment has no modifier
@@ -969,6 +1006,7 @@
             'numbers': {
                 'half': 0.5,
                 'quarter': 0.25,
+                'qtr': 0.25,
                 'zero': 0,
                 'one': 1,
                 'two': 2,
@@ -1000,7 +1038,11 @@
                 'ninety': 90,
                 'hundred': 100,
                 'thousand': 1000,
+                'half-a-mil': 500000,
+                'half-a-mill': 500000,
                 'million': 1000000,
+                'half-a-bil': 500000000,
+                'half-a-bill': 500000000,
                 'billion': 1000000000,
                 'tenth': 0.1,
                 'hundredth': 0.01,
@@ -1014,7 +1056,9 @@
                 '',
                 ' ',
                 ' and ',
-                '-'
+                '-',
+                ' a ',
+                ' of a '
             ],
             /**
              * Flippers define what characters between two number-words will
@@ -1075,6 +1119,10 @@
         ]
     };
     
+    var getValue = function (name, locale) {
+        return locale.numbers[name.toLowerCase()] || parseFloat(name);
+    }
+    
     /**
      * This takes any string, locates groups of 
      * spelled out numbers and returns results
@@ -1112,11 +1160,12 @@
         
         var match;
         while ((match = re.exec(input)) !== null) {
-            core.insertMatch(matches, {
-                pos: match.index,
-                len: match[0].length,
-                value: locale.numbers[match[0].toLowerCase()] || parseFloat(match[0])
-            });
+            core.insertToken(matches, new core.Token(
+                getValue(match[0], locale), 
+                'number.segment', 
+                match.index, 
+                match[0]
+            ));
         };
         
         /**
@@ -1124,11 +1173,12 @@
          */
         re = /([+-]{0,1}\d+)/gi;
         while ((match = re.exec(input)) !== null) {
-            core.insertMatch(matches, {
-                pos: match.index,
-                len: match[0].length,
-                value: parseFloat(match[0])
-            });
+            core.insertToken(matches, new core.Token(
+                getValue(match[0], locale), 
+                'number.segment', 
+                match.index, 
+                match[0]
+            ));
         };
         
         /**
@@ -1142,9 +1192,17 @@
         var numDigits = function(val) {
             if (val < 1) return '';
             return String(val).length;
-        }
+        };
+        
+        var tallySegments = function (segments) {
+            var value = 0;
+            segments.forEach( function (segment) {
+                value += segment.value;  
+            });
+            return value;
+        };
 
-        var result = [{ kind: 'number', pos: 0, value: 0, text: '', segments: [0] }];
+        var result = [new core.Token(0, 'number', 0, '', [new core.Token(0, 'number.segment', 0, '')])];
         var resultIndex = 0;
         var segmentIndex = 0;
         var previous = null;
@@ -1153,11 +1211,11 @@
             // first lets check to see what characters
             // are joining this result with the last result
             if (previous) {
-                var joiner = input.slice(previous.pos + previous.len, matches[i].pos);
+                var joiner = input.slice(previous.pos + previous.text.length, matches[i].pos);
                 if (locale.joiners.indexOf(joiner) === -1) {
-                    result[resultIndex].value = result[resultIndex].segments.reduce(function (prev, next) { return (prev || 0) + next; });
-                    result[resultIndex].text = input.slice(result[resultIndex].pos, previous.pos + previous.len);
-                    result.push({ kind: 'number', pos: 0, value: 0, text: '', segments: [0] });
+                    result[resultIndex].value = tallySegments(result[resultIndex].tokens);
+                    result[resultIndex].text = input.slice(result[resultIndex].pos, previous.pos + previous.text.length);
+                    result.push(new core.Token(0, 'number', 0, '', [new core.Token(0, 'number.segment', 0, '')]));
                     resultIndex++;
                     segmentIndex = 0;
                     previous = null;
@@ -1167,45 +1225,47 @@
                 result[resultIndex].pos = matches[i].pos;
             }
 
-            if (previous && (numDigits(result[resultIndex].segments[segmentIndex]) < numDigits(matches[i].value) || matches[i].value < 1)) {
+            if (previous && (numDigits(result[resultIndex].tokens[segmentIndex].value) < numDigits(matches[i].value) || matches[i].value < 1)) {
 
-                // check previous segments (todo: recursive)
-                if (segmentIndex > 0 && (result[resultIndex].segments[segmentIndex - 1] < matches[i].value) ) {
+                // check previous segments
+                if (segmentIndex > 0 && (result[resultIndex].tokens[segmentIndex - 1].value < matches[i].value) ) {
 
                     // traverse backwards until the end or sum is greater than current value
                     var segmentsTally = 0;
                     var splitter = 0;
-                    for (var j = result[resultIndex].segments.length - 1; j > -1; j--) {
-                        if (segmentsTally + result[resultIndex].segments[j] > matches[i].value) {
+                    for (var j = result[resultIndex].tokens.length - 1; j > -1; j--) {
+                        if (segmentsTally + result[resultIndex].tokens[j].value > matches[i].value) {
                             splitter = j + 1;
                             break;
                         }
-                        segmentsTally += result[resultIndex].segments[j];
+                        segmentsTally += result[resultIndex].tokens[j].value;
                     }
 
-                    result[resultIndex].segments.splice(splitter, result[resultIndex].segments.length);
+                    result[resultIndex].tokens.splice(splitter, result[resultIndex].tokens.length);
                     segmentIndex = splitter;
-                    result[resultIndex].segments.push(segmentsTally * matches[i].value);
+                    result[resultIndex].tokens.push(new core.Token(segmentsTally * matches[i].value, 'number.segment', 0, ''));
 
                 } else {
                     // German language puts the 1s before the 10s, likely other languages do as well
-                    if (locale.flippers.indexOf(input.slice(previous.pos + previous.len, matches[i].pos)) > -1) {
-                        result[resultIndex].segments[segmentIndex] += matches[i].value;
+                    if (locale.flippers.indexOf(input.slice(previous.pos + previous.text.length, matches[i].pos)) > -1) {
+                        result[resultIndex].tokens[segmentIndex].value += matches[i].value;
                     } else {
-                        result[resultIndex].segments[segmentIndex] = result[resultIndex].segments[segmentIndex] * matches[i].value;
+                        result[resultIndex].tokens[segmentIndex].value = result[resultIndex].tokens[segmentIndex].value * matches[i].value;
                     }
                 }
-            } else if (previous && result[resultIndex].segments[segmentIndex] > matches[i].value) {
-                result[resultIndex].segments.push(matches[i].value);
+            } else if (previous && result[resultIndex].tokens[segmentIndex].value > matches[i].value) {
+                result[resultIndex].tokens.push(new core.Token(matches[i].value, 'number.segment', 0, ''));
                 segmentIndex++;
             } else {
-                result[resultIndex].segments[segmentIndex] += matches[i].value;
+                result[resultIndex].tokens[segmentIndex].value += matches[i].value;
+                result[resultIndex].tokens[segmentIndex].pos = matches[i].pos;
+                result[resultIndex].tokens[segmentIndex].text = matches[i].text;
             }
 
             previous = matches[i];
         }
-        result[resultIndex].value = result[resultIndex].segments.reduce(function (prev, next) { return (prev || 0) + next; });
-        result[resultIndex].text = input.slice(result[resultIndex].pos, previous.pos + previous.len);
+        result[resultIndex].value = tallySegments(result[resultIndex].tokens);
+        result[resultIndex].text = input.slice(result[resultIndex].pos, previous.pos + previous.text.length);
 
         /**
          * Create parsed results object and Bind functions to the parsed results for sugar
