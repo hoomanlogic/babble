@@ -480,10 +480,10 @@
         
         //http://leaverou.github.io/regexplained/
         var match;
-        // use positive lookahead to only match full words (\b|\d) 
+        // use negative lookahead to ensure it's the end of a word 
         // without consuming a digit that could otherwise be a part
         // of the following match
-        var re = new RegExp('(\\b|\\d)(' + names.join('|') + ')(?:(\\b|\\d))', 'gi')
+        var re = new RegExp('(\\b|\\d)(' + names.join('|') + ')\.?(?![a-zA-Z])', 'gi')
         while ((match = re.exec(input)) !== null) {
             var truePos = match.index + (match[1] || '').length;
             core.insertToken(matches, {

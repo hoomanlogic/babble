@@ -1,6 +1,6 @@
 {
   "name": "babble",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "A JavaScript library for building user interfaces that understand humans",
   "main": "gulpfile.js",
   "devDependencies": {

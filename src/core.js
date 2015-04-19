@@ -270,7 +270,7 @@
                 return result;
             }
             
-            throw new Error('translate function was not given an appropriate input to parse');
+            return new ParsedResult(input, []);
         },
         /**
          * Passes the input to the translators 

@@ -270,7 +270,7 @@
                 return result;
             }
             
-            throw new Error('translate function was not given an appropriate input to parse');
+            return new ParsedResult(input, []);
         },
         /**
          * Passes the input to the translators 
@@ -833,10 +833,10 @@
         
         //http://leaverou.github.io/regexplained/
         var match;
-        // use positive lookahead to only match full words (\b|\d) 
+        // use negative lookahead to ensure it's the end of a word 
         // without consuming a digit that could otherwise be a part
         // of the following match
-        var re = new RegExp('(\\b|\\d)(' + names.join('|') + ')(?:(\\b|\\d))', 'gi')
+        var re = new RegExp('(\\b|\\d)(' + names.join('|') + ')\.?(?![a-zA-Z])', 'gi')
         while ((match = re.exec(input)) !== null) {
             var truePos = match.index + (match[1] || '').length;
             core.insertToken(matches, {
@@ -1004,65 +1004,6 @@
       locales.push(name);
     }
     core.register('durations', DurationTranslator, defaultLocale, locales);
-
-}(typeof exports === 'undefined' ? this['babble'] = this['babble'] || {} : exports));
-/**
- * @module moments
- * @dependency core
- * @description Natural language processing for points in time.
- */
-(function (exports) {
-    'use strict';
-    
-    /**
-     * This takes any string, locates groups of 
-     * durations and returns results
-     */
-    exports.parse = function (input, locale) {
-
-        /**
-         * Set the locale used for matching
-         * and default to the CurrentLocale
-         * if not specified.
-         */
-//        if (locale && Locales[locale]) {
-//            locale = Locales[locale];
-//        } else {
-//            locale = Locales['en-US'];
-//        }
-//        
-    };
-    
-    /**
-     * Define core and preparse dependencies
-     */
-    if (typeof require !== 'undefined') {
-        var core = require('./core.js');
-    } else {
-        var core = window['babble'];
-    }
-
-    /**
-     * Define MomentTranslator class
-     */
-    var MomentTranslator = function (onTranslate, locale) {
-        this.name = 'moments';
-        this.parse = parse;
-        core.BaseTranslator.call(this, onTranslate, locale);
-    }
-    MomentTranslator.prototype = Object.create(core.BaseTranslator.prototype);
-    MomentTranslator.prototype.constructor = MomentTranslator;
-    exports.MomentTranslator = MomentTranslator;
-    
-    /**
-     * Register translator with the core list
-     */
-//    var defaultLocale = 'en-US';
-//    var locales = [];
-//    for (var name in Locales) {
-//      locales.push(name);
-//    }
-//    core.register('moments', MomentTranslator, defaultLocale, locales);
 
 }(typeof exports === 'undefined' ? this['babble'] = this['babble'] || {} : exports));
 /**

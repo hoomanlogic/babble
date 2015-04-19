@@ -85,7 +85,11 @@ describe('durations parse should recognize', function() {
     })
     
     it('1hr30min', function() {
-        durationTranslator.translate('1hr30min').tokens[0].value.value.should.equal(90 * 60 * 1000);
+        durationTranslator.translate('1hr30min').tokens[0].value.toMinutes().should.equal(90);
+    })
+    
+        it('1d2h', function() {
+        durationTranslator.translate('1d2h').tokens[0].value.toMinutes().should.equal(26 * 60);
     })
     
     it('a day', function() {
