@@ -5,6 +5,27 @@ var should = chai.should();
 var numbers = require('../src/numbers.js');
 var durations = require('../src/durations.js');
 
+describe('duration type toString formats', function () {
+    
+    var secondInt = 1000;
+    var minuteInt = 60 * secondInt;
+    var hourInt = 60 * minuteInt;
+    var dayInt = 24 * hourInt;
+    var yearInt = 365 * dayInt;
+    var decadeInt = 10 * yearInt;
+    var centuryInt = 10 * decadeInt;
+    var millenniumInt = 10 * centuryInt;
+    
+    it(':', function() {
+        new durations.Duration((hourInt * 2) + (minuteInt * 5)).toString(':').should.equal('2:05:00');
+    })
+    
+    it(':minutes', function() {
+        new durations.Duration((hourInt * 2) + (minuteInt * 5)).toString(':minutes').should.equal('2:05');
+    })
+    
+})
+
 describe('numbers parse should recognize', function() {
     
     var numberTranslator = new numbers.NumberTranslator();

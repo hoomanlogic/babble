@@ -543,7 +543,7 @@
     }
     
     
-    exports.Duration.prototype.toString = function (unitOfSpecificity, locale) {
+    exports.Duration.prototype.toString = function (format, locale) {
         
         /**
          * Set the locale used for matching
@@ -556,45 +556,75 @@
             locale = Locales[defaultLocale];
         }
         
-        if (typeof unitOfSpecificity === 'undefined' || unitOfSpecificity === null || !this.hasOwnProperty(unitOfSpecificity)) {
-            unitOfSpecificity = 'milliseconds';
-        }
-        
-        var info = [];
-        if (this.years) {
-            info.push(this.years + ' ' + locale.formatNoun(locale.year.full[1], this.years));   
-        }
-        if (unitOfSpecificity === 'days') {
+        if (typeof format !== 'undefined' && format !== null && format.slice(0,1) === ':') {
+            if (this.days > 0) {
+                return this.days + ':' + (this.hours < 10 ? '0' : '') + this.hours + ':' + (this.minutes < 10 ? '0' : '') + this.minutes;
+            } else if (this.hours > 0) {
+                
+                if (format === ':minutes') {
+                    return 
+                        this.hours + ':' + 
+                        (this.minutes < 10 ? '0' : '') + this.minutes + ':';
+                } else {
+                    return 
+                        this.hours + ':' + 
+                        (this.minutes < 10 ? '0' : '') + this.minutes + ':' + 
+                        (this.seconds < 10 ? '0' : '') + this.seconds;
+                }
+                
+            } else {
+                if (format === ':minutes') {
+                    return 
+                        this.minutes;
+                } else {
+                    return 
+                        this.minutes + ':' + 
+                        (this.seconds < 10 ? '0' : '') + this.seconds;
+                }
+                
+            }
+        } else {
+            
+            if (typeof format === 'undefined' || format === null || !this.hasOwnProperty(unitOfSpecificity)) {
+                format = 'milliseconds';
+            }
+
+            var info = [];
+            if (this.years) {
+                info.push(this.years + ' ' + locale.formatNoun(locale.year.full[1], this.years));   
+            }
+            if (unitOfSpecificity === 'days') {
+                return info.join(', ');
+            }
+            if (this.days) {
+                info.push(this.days + ' ' + locale.formatNoun(locale.day.full[1], this.days));   
+            }
+            if (unitOfSpecificity === 'days') {
+                return info.join(', ');
+            }
+            if (this.hours) {
+                info.push(this.hours + ' ' + locale.formatNoun(locale.hour.full[1], this.hours));   
+            }
+            if (unitOfSpecificity === 'hours') {
+                return info.join(', ');
+            }
+            if (this.minutes) {
+                info.push(this.minutes + ' ' + locale.formatNoun(locale.minute.full[1], this.minutes));   
+            }
+            if (unitOfSpecificity === 'minutes') {
+                return info.join(', ');
+            }
+            if (this.seconds) {
+                info.push(this.seconds + ' ' + locale.formatNoun(locale.second.full[1], this.seconds));   
+            }
+            if (unitOfSpecificity === 'seconds') {
+                return info.join(', ');
+            }
+            if (this.milliseconds) {
+                info.push(this.milliseconds + ' ' + locale.formatNoun(locale.millisecond.full[1], this.milliseconds));   
+            }
             return info.join(', ');
         }
-        if (this.days) {
-            info.push(this.days + ' ' + locale.formatNoun(locale.day.full[1], this.days));   
-        }
-        if (unitOfSpecificity === 'days') {
-            return info.join(', ');
-        }
-        if (this.hours) {
-            info.push(this.hours + ' ' + locale.formatNoun(locale.hour.full[1], this.hours));   
-        }
-        if (unitOfSpecificity === 'hours') {
-            return info.join(', ');
-        }
-        if (this.minutes) {
-            info.push(this.minutes + ' ' + locale.formatNoun(locale.minute.full[1], this.minutes));   
-        }
-        if (unitOfSpecificity === 'minutes') {
-            return info.join(', ');
-        }
-        if (this.seconds) {
-            info.push(this.seconds + ' ' + locale.formatNoun(locale.second.full[1], this.seconds));   
-        }
-        if (unitOfSpecificity === 'seconds') {
-            return info.join(', ');
-        }
-        if (this.milliseconds) {
-            info.push(this.milliseconds + ' ' + locale.formatNoun(locale.millisecond.full[1], this.milliseconds));   
-        }
-        return info.join(', ');
     }
         
     exports.Duration.prototype.toMinutes = function () {
