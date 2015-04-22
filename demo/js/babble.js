@@ -591,7 +591,7 @@
             }
         } else {
             
-            if (typeof format === 'undefined' || format === null || !this.hasOwnProperty(unitOfSpecificity)) {
+            if (typeof format === 'undefined' || format === null) {
                 format = 'milliseconds';
             }
 
@@ -599,31 +599,31 @@
             if (this.years) {
                 info.push(this.years + ' ' + locale.formatNoun(locale.year.full[1], this.years));   
             }
-            if (unitOfSpecificity === 'days') {
+            if (format === 'days') {
                 return info.join(', ');
             }
             if (this.days) {
                 info.push(this.days + ' ' + locale.formatNoun(locale.day.full[1], this.days));   
             }
-            if (unitOfSpecificity === 'days') {
+            if (format === 'days') {
                 return info.join(', ');
             }
             if (this.hours) {
                 info.push(this.hours + ' ' + locale.formatNoun(locale.hour.full[1], this.hours));   
             }
-            if (unitOfSpecificity === 'hours') {
+            if (format === 'hours') {
                 return info.join(', ');
             }
             if (this.minutes) {
                 info.push(this.minutes + ' ' + locale.formatNoun(locale.minute.full[1], this.minutes));   
             }
-            if (unitOfSpecificity === 'minutes') {
+            if (format === 'minutes') {
                 return info.join(', ');
             }
             if (this.seconds) {
                 info.push(this.seconds + ' ' + locale.formatNoun(locale.second.full[1], this.seconds));   
             }
-            if (unitOfSpecificity === 'seconds') {
+            if (format === 'seconds') {
                 return info.join(', ');
             }
             if (this.milliseconds) {

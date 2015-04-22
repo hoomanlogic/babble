@@ -24,6 +24,10 @@ describe('duration type toString formats', function () {
         new durations.Duration((hourInt * 2) + (minuteInt * 5)).toString(':minutes').should.equal('2:05');
     })
     
+    it('default', function() {
+        new durations.Duration((hourInt * 2) + (minuteInt * 5)).toString().should.equal('2 hours, 5 minutes');
+    })
+    
 })
 
 describe('numbers parse should recognize', function() {
