@@ -202,33 +202,39 @@
         } else {
             locale = Locales[defaultLocale];
         }
-        
+
         if (typeof format !== 'undefined' && format !== null && format.slice(0,1) === ':') {
+            
             if (this.days > 0) {
-                return this.days + ':' + (this.hours < 10 ? '0' : '') + this.hours + ':' + (this.minutes < 10 ? '0' : '') + this.minutes;
+                return (
+                    this.days + ':' + 
+                    (this.hours < 10 ? '0' : '') + this.hours + ':' + 
+                    (this.minutes < 10 ? '0' : '') + this.minutes
+                );
             } else if (this.hours > 0) {
-                
                 if (format === ':minutes') {
-                    return 
+                    return (
                         this.hours + ':' + 
-                        (this.minutes < 10 ? '0' : '') + this.minutes + ':';
+                        (this.minutes < 10 ? '0' : '') + this.minutes
+                    );
                 } else {
-                    return 
+                    return (
                         this.hours + ':' + 
                         (this.minutes < 10 ? '0' : '') + this.minutes + ':' + 
-                        (this.seconds < 10 ? '0' : '') + this.seconds;
+                        (this.seconds < 10 ? '0' : '') + this.seconds
+                    );
                 }
-                
             } else {
                 if (format === ':minutes') {
-                    return 
-                        this.minutes;
+                    return (
+                        this.minutes
+                    );
                 } else {
-                    return 
+                    return (
                         this.minutes + ':' + 
-                        (this.seconds < 10 ? '0' : '') + this.seconds;
+                        (this.seconds < 10 ? '0' : '') + this.seconds
+                    );
                 }
-                
             }
         } else {
             
