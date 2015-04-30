@@ -687,5 +687,43 @@
       locales.push(name);
     }
     core.register('durations', DurationTranslator, defaultLocale, locales);
+    
+    
+    exports.durations = {
+        /**
+         * Calculates the number of days between two dates.
+         * @param {Date} d1 - a date for comparison
+         * @param {Date} d2 - a date for comparison
+         */
+        dayDiff: function (d1, d2) {
+            var days = Math.abs(d1 - d2) / dayInt;
+            return days;
+        },
+
+        /**
+         * Calculates the number of hours between two dates.
+         * @param {Date} d1 - a date for comparison
+         * @param {Date} d2 - a date for comparison
+         */
+        hourDiff: function (d1, d2) {
+            return Math.abs(d1 - d2) / hourInt;
+        },
+        
+        formatDuration: function (minutes, locale) {
+            if (typeof locale === 'undefined') {
+                locale = 'en-US';
+            }
+            
+            if (minutes < 60) {
+                return minutes + ' ' + Locales[locale].formatNoun('minute', minutes);
+            } else {
+                var leftover = minutes % 60;
+
+                var hours = (minutes - leftover) / 60;
+
+                return hours + ' ' + Locales[locale].formatNoun('hour', hours) + ' and ' + leftover + ' ' + Locales[locale].formatNoun('minute', leftover);
+            }
+        }
+    };
 
 }(typeof exports === 'undefined' ? this['babble'] = this['babble'] || {} : exports));

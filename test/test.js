@@ -4,6 +4,7 @@ var should = chai.should();
 
 var numbers = require('../src/numbers.js');
 var durations = require('../src/durations.js');
+var moments = require('../src/moments.js');
 
 describe('duration type toString formats', function () {
     
@@ -212,3 +213,37 @@ describe('durations parse should recognize', function() {
 //        );
 //    })
 //})
+
+describe('moments', function() {  
+    describe('daysOfWeek', function() {
+        it('should exist', function() {
+            should.exist(moments.moments.daysOfWeek)
+        })
+
+        it('should be an array', function() {
+            moments.moments.daysOfWeek.should.be.a('Array')
+        })
+    })
+    
+    describe('dayDiff', function() {
+        it('should return number of days between two dates', function() {
+            var d1 = new Date();
+            var d2 = new Date();
+            d2.setDate(d2.getDate() + 31);
+            
+            moments.moments.dayDiff(d1, d2).should.equal(31);
+            moments.moments.dayDiff(d2, d1).should.equal(31);
+        })
+    })
+    
+    describe('hourDiff', function() {
+        it('should return number of hours between two dates', function() {
+            var d1 = new Date();
+            var d2 = new Date();
+            d2.setDate(d2.getDate() + 31);
+            
+            moments.moments.hourDiff(d1, d2).should.equal(31 * 24);
+            moments.moments.hourDiff(d2, d1).should.equal(31 * 24);
+        })
+    })
+})
