@@ -8,49 +8,49 @@
 
     var Locales = {
         'en-US': {
-            'code': 'en-US',
-            'millennium': {
-                'full': ['millennium', 'millennia']
+            code: 'en-US',
+            millennium: {
+                full: ['millennium', 'millennia']
             },
-            'century': {
-                'full': ['centuries', 'century']
+            century: {
+                full: ['centuries', 'century']
             },
-            'decade': {
-                'full': ['decades', 'decade']
+            decade: {
+                full: ['decades', 'decade']
             },
-            'year': {
-                'full': ['years', 'year'],
-                'short': ['yr'],
-                'symbol': ['y']
+            year: {
+                full: ['years', 'year'],
+                short: ['yr'],
+                symbol: ['y']
             },
-            'day': {
-                'full': ['days', 'day'],
-                'short': ['dys', 'dy'],
-                'symbol': ['d']
+            day: {
+                full: ['days', 'day'],
+                short: ['dys', 'dy'],
+                symbol: ['d']
             },
-            'hour': {
-                'full': ['hours', 'hour'],
-                'short': ['hrs', 'hr'],
-                'symbol': ['h'],
+            hour: {
+                full: ['hours', 'hour'],
+                short: ['hrs', 'hr'],
+                symbol: ['h'],
             },
-            'minute': {
-                'full': ['minutes', 'minute'],
-                'short': ['mins', 'min'],
-                'symbol': ['m'],
+            minute: {
+                full: ['minutes', 'minute'],
+                short: ['mins', 'min'],
+                symbol: ['m'],
             },
-            'second': {
-                'full': ['seconds', 'second'],
-                'short': ['secs', 'sec'],
-                'symbol': ['s'],
+            second: {
+                full: ['seconds', 'second'],
+                short: ['secs', 'sec'],
+                symbol: ['s'],
             },
-            'millisecond': {
-                'full': ['milliseconds', 'millisecond'],
-                'short': ['millisecs', 'millisec', 'msecs', 'msec'],
-                'symbol': ['ms'],
+            millisecond: {
+                full: ['milliseconds', 'millisecond'],
+                short: ['millisecs', 'millisec', 'msecs', 'msec'],
+                symbol: ['ms'],
             },
-            'timeJoiners': [',',', and',',and','and',''],
-            'modifierJoiners': ['of an','of a','an','a',''],
-            
+            timeJoiners: [',',', and',',and','and',''],
+            modifierJoiners: ['of an','of a','an','a',''],
+
             /**
              * Pluralizes a word based on how many
              */
@@ -63,7 +63,7 @@
                     } else {
                         return noun + 's';
                     }
-                }
+                };
 
                 if (howMany === 0) {
                     return 'no ' + plural(noun);
@@ -77,49 +77,49 @@
 
     };
     Locales['de-DE'] = {
-            'code': 'de-DE',
-            'millennium': {
-                'full': []
+            code: 'de-DE',
+            millennium: {
+                full: []
             },
-            'century': {
-                'full': []
+            century: {
+                full: []
             },
-            'decade': {
-                'full': []
+            decade: {
+                full: []
             },
-            'year': {
-                'full': ['jahre', 'jahr'],
-                'short': [],
-                'symbol': ['j']
+            year: {
+                full: ['jahre', 'jahr'],
+                short: [],
+                symbol: ['j']
             },
-            'day': {
-                'full': ['tage', 'tag'],
-                'short': [],
-                'symbol': ['t']
+            day: {
+                full: ['tage', 'tag'],
+                short: [],
+                symbol: ['t']
             },
-            'hour': {
-                'full': ['stunde'],
-                'short': [],
-                'symbol': ['st'],
+            hour: {
+                full: ['stunde'],
+                short: [],
+                symbol: ['st'],
             },
-            'minute': {
-                'full': ['minuten'],
-                'short': ['min'],
-                'symbol': ['m'],
+            minute: {
+                full: ['minuten'],
+                short: ['min'],
+                symbol: ['m'],
             },
-            'second': {
-                'full': ['sekunden'],
-                'short': ['sek'],
-                'symbol': ['s'],
+            second: {
+                full: ['sekunden'],
+                short: ['sek'],
+                symbol: ['s'],
             },
-            'millisecond': {
-                'full': ['millisekunden'],
-                'short': ['millisek', 'msek'],
-                'symbol': ['ms'],
+            millisecond: {
+                full: ['millisekunden'],
+                short: ['millisek', 'msek'],
+                symbol: ['ms'],
             },
-            'timeJoiners': [',',', und',',und','und',''],
-            'modifierJoiners': ['ob',''],
-            
+            timeJoiners: [',',', und',',und','und',''],
+            modifierJoiners: ['ob',''],
+
             /**
              * Pluralizes a word based on how many
              */
@@ -127,7 +127,7 @@
 
                 var plural = function (noun) {
                     return noun + 'e';
-                }
+                };
 
                 if (howMany === 0) {
                     return 'kein ' + plural(noun);
@@ -150,14 +150,14 @@
     var decadeInt = 10 * yearInt;
     var centuryInt = 10 * decadeInt;
     var millenniumInt = 10 * centuryInt;
-    
+
     /**
      * Create Duration object
      */
     exports.Duration = function (milliseconds) {
-        
+
         this.value = milliseconds;
-        
+
         this.milliseconds = 0;
         this.seconds = 0;
         this.minutes = 0;
@@ -187,11 +187,11 @@
             leftOver -= this.seconds * secondInt;
         }
         this.milliseconds = leftOver;
-    }
-    
-    
+    };
+
+
     exports.Duration.prototype.toString = function (format, locale) {
-        
+
         /**
          * Set the locale used for matching
          * and default to the CurrentLocale
@@ -204,23 +204,23 @@
         }
 
         if (typeof format !== 'undefined' && format !== null && format.slice(0,1) === ':') {
-            
+
             if (this.days > 0) {
                 return (
-                    this.days + ':' + 
-                    (this.hours < 10 ? '0' : '') + this.hours + ':' + 
+                    this.days + ':' +
+                    (this.hours < 10 ? '0' : '') + this.hours + ':' +
                     (this.minutes < 10 ? '0' : '') + this.minutes
                 );
             } else if (this.hours > 0) {
                 if (format === ':minutes') {
                     return (
-                        this.hours + ':' + 
+                        this.hours + ':' +
                         (this.minutes < 10 ? '0' : '') + this.minutes
                     );
                 } else {
                     return (
-                        this.hours + ':' + 
-                        (this.minutes < 10 ? '0' : '') + this.minutes + ':' + 
+                        this.hours + ':' +
+                        (this.minutes < 10 ? '0' : '') + this.minutes + ':' +
                         (this.seconds < 10 ? '0' : '') + this.seconds
                     );
                 }
@@ -231,62 +231,62 @@
                     );
                 } else {
                     return (
-                        this.minutes + ':' + 
+                        this.minutes + ':' +
                         (this.seconds < 10 ? '0' : '') + this.seconds
                     );
                 }
             }
         } else {
-            
+
             if (typeof format === 'undefined' || format === null) {
                 format = 'milliseconds';
             }
 
             var info = [];
             if (this.years) {
-                info.push(this.years + ' ' + locale.formatNoun(locale.year.full[1], this.years));   
+                info.push(this.years + ' ' + locale.formatNoun(locale.year.full[1], this.years));
             }
             if (format === 'days') {
                 return info.join(', ');
             }
             if (this.days) {
-                info.push(this.days + ' ' + locale.formatNoun(locale.day.full[1], this.days));   
+                info.push(this.days + ' ' + locale.formatNoun(locale.day.full[1], this.days));
             }
             if (format === 'days') {
                 return info.join(', ');
             }
             if (this.hours) {
-                info.push(this.hours + ' ' + locale.formatNoun(locale.hour.full[1], this.hours));   
+                info.push(this.hours + ' ' + locale.formatNoun(locale.hour.full[1], this.hours));
             }
             if (format === 'hours') {
                 return info.join(', ');
             }
             if (this.minutes) {
-                info.push(this.minutes + ' ' + locale.formatNoun(locale.minute.full[1], this.minutes));   
+                info.push(this.minutes + ' ' + locale.formatNoun(locale.minute.full[1], this.minutes));
             }
             if (format === 'minutes') {
                 return info.join(', ');
             }
             if (this.seconds) {
-                info.push(this.seconds + ' ' + locale.formatNoun(locale.second.full[1], this.seconds));   
+                info.push(this.seconds + ' ' + locale.formatNoun(locale.second.full[1], this.seconds));
             }
             if (format === 'seconds') {
                 return info.join(', ');
             }
             if (this.milliseconds) {
-                info.push(this.milliseconds + ' ' + locale.formatNoun(locale.millisecond.full[1], this.milliseconds));   
+                info.push(this.milliseconds + ' ' + locale.formatNoun(locale.millisecond.full[1], this.milliseconds));
             }
             return info.join(', ');
         }
-    }
-        
+    };
+
     exports.Duration.prototype.toMinutes = function () {
         if (this.value > 60000) {
             return Math.floor((this.value / 1000) / 60);
         } else {
-            return 0;   
+            return 0;
         }
-    }
+    };
 
     /**
      * Return whether name is variation of millenium
@@ -430,22 +430,22 @@
     var getValue = function (name, locale) {
 
         if (isMillennium(name, locale)) {
-            return millenniumInt;   
+            return millenniumInt;
         }
         if (isCentury(name, locale)) {
-            return centuryInt;   
+            return centuryInt;
         }
         if (isDecade(name, locale)) {
-            return decadeInt;   
+            return decadeInt;
         }
         if (isYear(name, locale)) {
-            return yearInt;   
+            return yearInt;
         }
         if (isDay(name, locale)) {
             return dayInt;
         }
         if (isHour(name, locale)) {
-            return hourInt;   
+            return hourInt;
         }
         if (isMinute(name, locale)) {
             return minuteInt;
@@ -458,13 +458,13 @@
         }
         throw new Error('Invalid duration name');
     };
-    
+
     /**
-     * This takes any string, locates groups of 
+     * This takes any string, locates groups of
      * durations and returns results
      */
     var parse = function (input, locale) {
-    
+
         /**
          * Set the locale used for matching
          * and default to the CurrentLocale
@@ -508,18 +508,18 @@
          * Run pre-parsing dependencies
          */
         var preParsedResults = this.passToAssistants(input, locale.code);
-        
+
         /**
          * Array for holding number matches
          */
         var matches = [];
-        
+
         //http://leaverou.github.io/regexplained/
         var match;
-        // use negative lookahead to ensure it's the end of a word 
+        // use negative lookahead to ensure it's the end of a word
         // without consuming a digit that could otherwise be a part
         // of the following match
-        var re = new RegExp('(\\b|\\d)(' + names.join('|') + ')\.?(?![a-zA-Z])', 'gi')
+        var re = new RegExp('(\\b|\\d)(' + names.join('|') + ')\.?(?![a-zA-Z])', 'gi');
         while ((match = re.exec(input)) !== null) {
             var truePos = match.index + (match[1] || '').length;
             core.insertToken(matches, {
@@ -528,8 +528,8 @@
                 text: match[2],
                 value: getValue(match[2], locale)
             });
-        };
-        
+        }
+
         /**
          * Add numerical language matches
          */
@@ -544,21 +544,19 @@
                     value: null
                 });
             }
-        };
-        
+        }
 
-        
         if (matches.length === 0) {
-            return new core.ParsedResult(input, [], preParsedResults); 
+            return new core.ParsedResult(input, [], preParsedResults);
         }
 
         var results = [];
         var segments = [];
         var previousMatch = null;
         for (var i = 0; i < matches.length; i++) {
-            
+
             if (matches[i].kind === 'duration.full') {
-                
+
                 var timeSegments = matches[i].text.split(':');
                 var timeSum = 0;
                 if (timeSegments.length === 4) {
@@ -574,8 +572,8 @@
                     timeSum += parseInt(timeSegments[0] * hourInt);
                     timeSum += parseInt(timeSegments[1] * minuteInt);
                 }
-                
-                
+
+
                 segments.push({
                     kind: 'duration',
                     pos: matches[i].pos,
@@ -584,12 +582,12 @@
                 });
                 continue;
             }
-            
+
             /**
              * Find number token that modifies this duration match
              */
             var numToken = core.getTokenModifier(preParsedResults['numbers'].tokens, matches[i], previousMatch);
-            
+
             /**
              * This match segment has no modifier
              */
@@ -602,7 +600,7 @@
                 });
                 continue;
             }
-            
+
             /**
              * Check i
              */
@@ -615,17 +613,17 @@
                     value: numToken.value * matches[i].value
                 });
             }
-            
+
             /**
              * Set previousMatch to current match for use in next iteration
              */
             previousMatch = matches[i];
         }
-        
+
         /**
          * Combine segments
          */
-        
+
         var prev = null;
         var next = null;
         for (var i = 0; i < segments.length; i++) {
@@ -643,17 +641,17 @@
             prev = segments[i];
         }
         results.push(next);
-        
+
         for (var i = 0; i < results.length; i++) {
             results[i].value = new exports.Duration(results[i].value);
         }
-        
+
         /**
          * Create parsed results object and Bind functions to the parsed results for sugar
          */
         return new core.ParsedResult(input, results, preParsedResults);
     };
-    
+
     /**
      * Define core and preparse dependencies
      */
@@ -664,7 +662,7 @@
         var core = window['babble'];
         var numbers = window['babble'];
     }
-    
+
     /**
      * Define DurationTranslator class
      */
@@ -673,11 +671,12 @@
         this.parse = parse;
         this.assistants = ['numbers'];
         core.BaseTranslator.call(this, onTranslate, locale);
-    }
+    };
+
     DurationTranslator.prototype = Object.create(core.BaseTranslator.prototype);
     DurationTranslator.prototype.constructor = DurationTranslator;
     exports.DurationTranslator = DurationTranslator;
-    
+
     /**
      * Register this translator with the core list
      */
@@ -687,8 +686,8 @@
       locales.push(name);
     }
     core.register('durations', DurationTranslator, defaultLocale, locales);
-    
-    
+
+
     exports.durations = {
         /**
          * Calculates the number of days between two dates.
@@ -708,12 +707,12 @@
         hourDiff: function (d1, d2) {
             return Math.abs(d1 - d2) / hourInt;
         },
-        
+
         formatDuration: function (minutes, locale) {
             if (typeof locale === 'undefined') {
                 locale = 'en-US';
             }
-            
+
             if (minutes < 60) {
                 return minutes + ' ' + Locales[locale].formatNoun('minute', minutes);
             } else {

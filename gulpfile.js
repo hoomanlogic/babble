@@ -1,4 +1,5 @@
 var gulp = require('gulp');
+var eslint = require('gulp-eslint');
 var less = require('gulp-less');
 var concat = require('gulp-concat');
 var minifyCSS = require('gulp-minify-css');
@@ -8,7 +9,7 @@ var plumber = require('gulp-plumber');
 var gutil = require('gulp-util');
 var shell = require('gulp-shell');
 
-var onError = function (err) {  
+var onError = function (err) {
     gutil.beep();
     console.log(err);
 };
@@ -16,34 +17,37 @@ var onError = function (err) {
 var buildPaths = ['src/*.js'];
 
 // TASK: Build
-gulp.task('build', ['test','build-full','build-min','build-less'], function () {
+gulp.task('build', ['build-full','build-min','build-less']);
+
+// TASK: Lint
+gulp.task('lint', function () {
     return gulp.src(buildPaths)
-        .pipe(plumber({
-            errorHandler: onError
-        }));
+        // eslint() attaches the lint output to the eslint property
+        // of the file object so it can be used by other modules.
+        .pipe(eslint())
+        // eslint.format() outputs the lint results to the console.
+        // Alternatively use eslint.formatEach() (see Docs).
+        .pipe(eslint.format())
+        // To have the process exit with an error code (1) on
+        // lint error, return the stream and pipe to failOnError last.
+        .pipe(eslint.failOnError());
 });
 
 // TASK: Test
-gulp.task('test', function () {
+gulp.task('test', ['lint'], function () {
     return gulp.src('')
         .pipe(shell('mocha test'));
 });
 
-gulp.task('build-full', function () {
+gulp.task('build-full', ['test'], function () {
     return gulp.src(buildPaths)
-        .pipe(plumber({
-            errorHandler: onError
-        }))
         .pipe(concat('babble.js'))
         .pipe(gulp.dest('dist'))
-        .pipe(gulp.dest('demo/js'))
+        .pipe(gulp.dest('demo/js'));
 });
 
-gulp.task('build-min', function () {
+gulp.task('build-min', ['test'], function () {
     return gulp.src(buildPaths)
-        .pipe(plumber({
-            errorHandler: onError
-        }))
         .pipe(rename(function (path) {
             path.basename += '.min';
         }))
@@ -51,11 +55,11 @@ gulp.task('build-min', function () {
         .pipe(gulp.dest('dist'))
         .pipe(concat('babble.min.js'))
         .pipe(gulp.dest('dist'))
-        .pipe(gulp.dest('demo/js'))
+        .pipe(gulp.dest('demo/js'));
 });
 
 // TASK: Compile LESS source
-gulp.task('build-less', function () {
+gulp.task('build-less', ['test'], function () {
     return gulp.src(['demo/less/boilerstrapalize.less', 'demo/less/main.less'])
         .pipe(plumber({
             errorHandler: onError
@@ -100,19 +104,19 @@ gulp.task('watch', function () {
     jsWatcher.on('change', function (event) {
         console.log('File ' + event.path + ' was ' + event.type + ', running task...');
     });
-    
+
     // Watch for updates to test files
     var testWatcher = gulp.watch('test/test.js', ['test']);
     jsWatcher.on('change', function (event) {
         console.log('File ' + event.path + ' was ' + event.type + ', running task...');
     });
-    
+
     // Watch for updates to LESS files
     var demoWatcher = gulp.watch(['demo/less/*.less'], ['build-less']);
     jsWatcher.on('change', function (event) {
         console.log('File ' + event.path + ' was ' + event.type + ', running task...');
     });
-    
+
     // Watch for updates to demo page
     var demoWatcher = gulp.watch(['demo/index.html', 'demo/js/*.js', 'demo/css/*.css', 'demo/media/***'], ['sync-gh-page', 'sync-gh-page-js', 'sync-gh-page-css', 'sync-gh-page-media']);
     jsWatcher.on('change', function (event) {

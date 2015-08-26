@@ -5,9 +5,9 @@
  */
 (function (exports) {
     'use strict';
-    
+
     /**
-     * This takes any string, locates groups of 
+     * This takes any string, locates groups of
      * durations and returns results
      */
     exports.parse = function (input, locale) {
@@ -22,9 +22,9 @@
 //        } else {
 //            locale = Locales['en-US'];
 //        }
-//        
+//
     };
-    
+
 //    /**
 //     * Define core and preparse dependencies
 //     */
@@ -48,7 +48,7 @@
 //    MomentTranslator.prototype = Object.create(core.BaseTranslator.prototype);
 //    MomentTranslator.prototype.constructor = MomentTranslator;
 //    exports.MomentTranslator = MomentTranslator;
-//    
+//
 //    /**
 //     * Register this translator with the core list
 //     */
@@ -58,7 +58,7 @@
 //      locales.push(name);
 //    }
 //    core.register('moments', MomentTranslator, defaultLocale, locales);
-    
+
     /**
      * Helpers
      */
@@ -190,7 +190,7 @@
             return days[d.getDay()].value;
         },
 
-        /** 
+        /**
          * Date object is milliseconds since 1/1/1970
          * However, time in forecast.io api is seconds since 1/1/1970
          * so we must convert to milliseconds before casting it as a date
