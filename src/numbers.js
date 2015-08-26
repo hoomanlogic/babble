@@ -316,7 +316,7 @@
      * Define core and preparse dependencies
      */
     if (typeof require !== 'undefined') {
-        var core = require('./core.js');
+        var core = require('./core');
     } else {
         var core = window['babble'];
     }
