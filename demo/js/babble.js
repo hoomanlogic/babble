@@ -14,7 +14,8 @@
     var toStringIfExists = function (obj) {
         if (obj.hasOwnProperty('toString')) {
             return obj.toString();
-        } else {
+        }
+        else {
             return obj;
         }
     };
@@ -33,13 +34,14 @@
             lowerBound = previousMatch.pos + previousMatch.text.length;
         }
 
-        var i = 0,
-            token = null;
+        var i = 0;
+        var token = null;
 
         for (var i = 0; i < tokens.length; i++) {
             if (lowerBound <= tokens[i].pos && tokens[i].pos < upperBound) {
                 token = tokens[i];
-            } else if (tokens[i].pos >= upperBound) {
+            }
+            else if (tokens[i].pos >= upperBound) {
                 break;
             }
         }
@@ -55,12 +57,14 @@
     var insertToken = function (arr, obj) {
         if (arr.length === 0 || arr[arr.length - 1].pos < obj.pos) {
             arr.push(obj);
-        } else {
+        }
+        else {
             for (var i = 0; i < arr.length; i++) {
                 if (arr[i].pos > obj.pos) {
                     arr.splice(i, 0, obj);
                     break;
-                } else if (arr[i].pos === obj.pos && arr[i].len < obj.len) {
+                }
+                else if (arr[i].pos === obj.pos && arr[i].len < obj.len) {
                     arr.splice(i, 1, obj);
                     break;
                 }
@@ -184,13 +188,17 @@
              */
             if (speaker.addEventListener) {
                 speaker.addEventListener(event, this.translate.bind(this, { speaker: speaker, locale: locale, onTranslate: onTranslate }));
-            } else if (speaker.attachEvent) {
+            }
+            else if (speaker.attachEvent) {
                 speaker.attachEvent('on' + event, this.translate.bind(this, { speaker: speaker, locale: locale, onTranslate: onTranslate }));
-            } else if (typeof speaker['on' + event] !== 'undefined') {
+            }
+            else if (typeof speaker['on' + event] !== 'undefined') {
                 speaker['on' + event] = this.translate.bind(this, { speaker: speaker, locale: locale, onTranslate: onTranslate });
-            } else if (typeof speaker[event] !== 'undefined') {
+            }
+            else if (typeof speaker[event] !== 'undefined') {
                 speaker[event] = this.translate.bind(this, { speaker: speaker, locale: locale, onTranslate: onTranslate });
-            } else {
+            }
+            else {
                 throw new Error('Could not find an appropriate event to bind to');
             }
         },
@@ -225,24 +233,28 @@
                      */
                     if (arguments[i].length < 6 && translators[this.name].supportedLocales.indexOf(arguments[i]) !== -1) {
                         options.locale = arguments[i];
-                    } else if (input === null) {
+                    }
+                    else if (input === null) {
                         input = arguments[i];
                     }
-                } else if (typeof arguments[i] === 'object') {
+                }
+                else if (typeof arguments[i] === 'object') {
                     /**
                      * Object could either be an Event object or the options object.
                      * If object.target.value doesn't exist, then assume options object
                      */
                     if (typeof arguments[i].target !== 'undefined' && typeof arguments[i].target.value !== 'undefined') {
                         input = arguments[i].target.value;
-                    } else {
+                    }
+                    else {
                         for (var propName in arguments[i]) {
                             if (arguments[i].hasOwnProperty(propName)) {
                                 options[propName] = arguments[i][propName];
                             }
                         }
                     }
-                } else if (typeof arguments[i] === 'function') {
+                }
+                else if (typeof arguments[i] === 'function') {
                     /**
                      * We only support one type of function
                      */
@@ -328,9 +340,9 @@
      * TODO: Describe this
      */
     var assign = function (name, speaker) {
-        var event = null,
-            locale = null,
-            onTranslate = null;
+        var event = null;
+        var locale = null;
+        var onTranslate = null;
 
         if (arguments.length < 3 || typeof arguments[arguments.length - 1] !== 'function') {
             throw new TypeError('Unexpected number of arguments');
@@ -345,12 +357,12 @@
         }
 
         var translator = get(name, locale);
-        //translator.locale = locale; // we have to set it so it doesn't forget
+        // translator.locale = locale; // we have to set it so it doesn't forget
         translator.listen(speaker, event, onTranslate, locale);
     };
     exports.assign = assign;
 
-}(typeof exports === 'undefined' ? this['babble'] = this['babble'] || {}: exports));
+}(typeof exports === 'undefined' ? this['babble'] = this['babble'] || {} : exports));
 
 /**
  * @module durations
@@ -410,88 +422,93 @@
              */
             formatNoun: function (noun, howMany) {
 
-                var plural = function (noun) {
+                var plural = function () {
                     var vowels = ['a','e','i','o','u'];
                     if (noun[noun.length - 1] === 'y' && vowels.indexOf(noun[noun.length - 2].toLowerCase()) === -1) {
                         return noun.substring(0, noun.length - 1) + 'ies';
-                    } else {
+                    }
+                    else {
                         return noun + 's';
                     }
                 };
 
                 if (howMany === 0) {
-                    return 'no ' + plural(noun);
-                } else if (howMany === 1) {
+                    return 'no ' + plural();
+                }
+                else if (howMany === 1) {
                     return noun;
-                } else {
-                    return plural(noun);
+                }
+                else {
+                    return plural();
                 }
             }
         },
 
     };
     Locales['de-DE'] = {
-            code: 'de-DE',
-            millennium: {
-                full: []
-            },
-            century: {
-                full: []
-            },
-            decade: {
-                full: []
-            },
-            year: {
-                full: ['jahre', 'jahr'],
-                short: [],
-                symbol: ['j']
-            },
-            day: {
-                full: ['tage', 'tag'],
-                short: [],
-                symbol: ['t']
-            },
-            hour: {
-                full: ['stunde'],
-                short: [],
-                symbol: ['st'],
-            },
-            minute: {
-                full: ['minuten'],
-                short: ['min'],
-                symbol: ['m'],
-            },
-            second: {
-                full: ['sekunden'],
-                short: ['sek'],
-                symbol: ['s'],
-            },
-            millisecond: {
-                full: ['millisekunden'],
-                short: ['millisek', 'msek'],
-                symbol: ['ms'],
-            },
-            timeJoiners: [',',', und',',und','und',''],
-            modifierJoiners: ['ob',''],
+        code: 'de-DE',
+        millennium: {
+            full: []
+        },
+        century: {
+            full: []
+        },
+        decade: {
+            full: []
+        },
+        year: {
+            full: ['jahre', 'jahr'],
+            short: [],
+            symbol: ['j']
+        },
+        day: {
+            full: ['tage', 'tag'],
+            short: [],
+            symbol: ['t']
+        },
+        hour: {
+            full: ['stunde'],
+            short: [],
+            symbol: ['st'],
+        },
+        minute: {
+            full: ['minuten'],
+            short: ['min'],
+            symbol: ['m'],
+        },
+        second: {
+            full: ['sekunden'],
+            short: ['sek'],
+            symbol: ['s'],
+        },
+        millisecond: {
+            full: ['millisekunden'],
+            short: ['millisek', 'msek'],
+            symbol: ['ms'],
+        },
+        timeJoiners: [',',', und',',und','und',''],
+        modifierJoiners: ['ob',''],
 
-            /**
-             * Pluralizes a word based on how many
-             */
-            formatNoun: function (noun, howMany) {
+        /**
+         * Pluralizes a word based on how many
+         */
+        formatNoun: function (noun, howMany) {
 
-                var plural = function (noun) {
-                    return noun + 'e';
-                };
+            var plural = function () {
+                return noun + 'e';
+            };
 
-                if (howMany === 0) {
-                    return 'kein ' + plural(noun);
-                } else if (howMany === 1) {
-                    return noun;
-                } else {
-                    return plural(noun);
-                }
+            if (howMany === 0) {
+                return 'kein ' + plural();
             }
-        };
+            else if (howMany === 1) {
+                return noun;
+            }
+            else {
+                return plural();
+            }
+        }
+    };
 
     /**
      * Module variables for duration calculations
@@ -553,7 +570,8 @@
          */
         if (locale && Locales[locale]) {
             locale = Locales[locale];
-        } else {
+        }
+        else {
             locale = Locales[defaultLocale];
         }
 
@@ -565,25 +583,29 @@
                     (this.hours < 10 ? '0' : '') + this.hours + ':' +
                     (this.minutes < 10 ? '0' : '') + this.minutes
                 );
-            } else if (this.hours > 0) {
+            }
+            else if (this.hours > 0) {
                 if (format === ':minutes') {
                     return (
                         this.hours + ':' +
                         (this.minutes < 10 ? '0' : '') + this.minutes
                     );
-                } else {
+                }
+                else {
                     return (
                         this.hours + ':' +
                         (this.minutes < 10 ? '0' : '') + this.minutes + ':' +
                         (this.seconds < 10 ? '0' : '') + this.seconds
                     );
                 }
-            } else {
+            }
+            else {
                 if (format === ':minutes') {
                     return (
                         this.minutes
                     );
-                } else {
+                }
+                else {
                     return (
                         this.minutes + ':' +
                         (this.seconds < 10 ? '0' : '') + this.seconds
@@ -918,15 +940,16 @@
                     timeSum += parseInt(timeSegments[1]) * hourInt;
                     timeSum += parseInt(timeSegments[2]) * minuteInt;
                     timeSum += parseFloat(timeSegments[3]) * secondInt;
-                } else if (timeSegments.length === 3) {
+                }
+                else if (timeSegments.length === 3) {
                     timeSum += parseInt(timeSegments[0]) * hourInt;
                     timeSum += parseInt(timeSegments[1]) * minuteInt;
                     timeSum += parseFloat(timeSegments[2]) * secondInt;
-                } else if (timeSegments.length === 2) {
+                }
+                else if (timeSegments.length === 2) {
                     timeSum += parseInt(timeSegments[0] * hourInt);
                     timeSum += parseInt(timeSegments[1] * minuteInt);
                 }
-
 
                 segments.push({
                     kind: 'duration',
@@ -1157,18 +1180,18 @@
         ],
 
         monthsOfYear: [
-        'January',
-        'February',
-        'March',
-        'April',
-        'May',
-        'June',
-        'July',
-        'August',
-        'September',
-        'October',
-        'November',
-        'December'
+            'January',
+            'February',
+            'March',
+            'April',
+            'May',
+            'June',
+            'July',
+            'August',
+            'September',
+            'October',
+            'November',
+            'December'
         ],
 
         dateOnly: function (datetime) {
@@ -1215,14 +1238,16 @@
                 isDate = true;
                 dayIndex = start.getDay();
                 date = start;
-            } else {
+            }
+            else {
                 dayIndex = start;
             }
             for (var i = 0; i < numOfDays; i++) {
                 var className = 'calendar-future';
                 if (date.getTime() === today.getTime()) {
                     className = 'calendar-today';
-                } else if (date.getTime() < today.getTime()) {
+                }
+                else if (date.getTime() < today.getTime()) {
                     className = 'calendar-past';
                 }
 
@@ -1293,12 +1318,12 @@
 
         formatDateTime: function (date) {
             var options = {
-                weekday: "long", year: "numeric", month: "short",
-                day: "numeric", hour: "numeric", minute: "2-digit"
+                weekday: 'long', year: 'numeric', month: 'short',
+                day: 'numeric', hour: 'numeric', minute: '2-digit'
             };
             date = new Date(date);
             // Friday, Feb 1, 2013 6:00 AM
-            return date.toLocaleTimeString("en-us", options);
+            return date.toLocaleTimeString('en-us', options);
         },
 
         getLocalDate: function (str) {
@@ -1308,9 +1333,10 @@
 
         parseLocalDate: function (str) {
             var date = null;
-            if (Date.parse(str) === NaN) {
+            if (isNaN(Date.parse(str))) {
                 date = null;
-            } else {
+            }
+            else {
                 date = new Date(Date.parse(str));
                 date.setMinutes(date.getMinutes() + date.getTimezoneOffset());
             }
@@ -1480,7 +1506,7 @@
         // it matches the 'teens' before the ones
         var names = [];
         for (var name in locale.numbers) {
-          names.push(name);
+            names.push(name);
         }
         names.reverse();
 
@@ -1525,8 +1551,10 @@
             return new core.ParsedResult(input, []);
         }
 
-        var numDigits = function(val) {
-            if (val < 1) return '';
+        var numDigits = function (val) {
+            if (val < 1) {
+                return '';
+            }
             return String(val).length;
         };
 
@@ -1572,10 +1600,12 @@
                 if (locale.flippers.indexOf(theSpaceBetween) > -1) {
                     numbers[numbersIndex].tokens[segmentsIndex].tokens.push(words[i]);
                     numbers[numbersIndex].tokens[segmentsIndex].value += words[i].value;
-                } else if (segmentsIndex === 0) {
+                }
+                else if (segmentsIndex === 0) {
                     numbers[numbersIndex].tokens[segmentsIndex].tokens.push(words[i]);
                     numbers[numbersIndex].tokens[segmentsIndex].value *= words[i].value;
-                } else {
+                }
+                else {
                     // might merge a segment
                     // traverse backwards until the end or sum is greater than current value
                     var segmentsTally = 0;
@@ -1607,7 +1637,8 @@
                     numbers[numbersIndex].tokens.push(mergedSegment);
                     segmentsIndex = splitter;
                 }
-            } else if (prevWord && numbers[numbersIndex].tokens[segmentsIndex].value > words[i].value) {
+            }
+            else if (prevWord && numbers[numbersIndex].tokens[segmentsIndex].value > words[i].value) {
                 numbers[numbersIndex].tokens.push(new core.Token(
                     words[i].value,
                     'number.segment',
@@ -1616,7 +1647,8 @@
                     [words[i]]
                 ));
                 segmentsIndex++;
-            } else if (prevWord) {
+            }
+            else if (prevWord) {
                 numbers[numbersIndex].tokens[segmentsIndex].value += words[i].value;
                 numbers[numbersIndex].tokens[segmentsIndex].pos = words[i].pos;
                 numbers[numbersIndex].tokens[segmentsIndex].text = words[i].text;
@@ -1638,7 +1670,7 @@
      * Define core and preparse dependencies
      */
     if (typeof require !== 'undefined') {
-        var core = require('./core.js');
+        var core = require('./core');
     } else {
         var core = window['babble'];
     }

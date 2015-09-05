@@ -56,88 +56,93 @@
              */
             formatNoun: function (noun, howMany) {
 
-                var plural = function (noun) {
+                var plural = function () {
                     var vowels = ['a','e','i','o','u'];
                     if (noun[noun.length - 1] === 'y' && vowels.indexOf(noun[noun.length - 2].toLowerCase()) === -1) {
                         return noun.substring(0, noun.length - 1) + 'ies';
-                    } else {
+                    }
+                    else {
                         return noun + 's';
                     }
                 };
 
                 if (howMany === 0) {
-                    return 'no ' + plural(noun);
-                } else if (howMany === 1) {
+                    return 'no ' + plural();
+                }
+                else if (howMany === 1) {
                     return noun;
-                } else {
-                    return plural(noun);
+                }
+                else {
+                    return plural();
                 }
             }
         },
 
     };
     Locales['de-DE'] = {
-            code: 'de-DE',
-            millennium: {
-                full: []
-            },
-            century: {
-                full: []
-            },
-            decade: {
-                full: []
-            },
-            year: {
-                full: ['jahre', 'jahr'],
-                short: [],
-                symbol: ['j']
-            },
-            day: {
-                full: ['tage', 'tag'],
-                short: [],
-                symbol: ['t']
-            },
-            hour: {
-                full: ['stunde'],
-                short: [],
-                symbol: ['st'],
-            },
-            minute: {
-                full: ['minuten'],
-                short: ['min'],
-                symbol: ['m'],
-            },
-            second: {
-                full: ['sekunden'],
-                short: ['sek'],
-                symbol: ['s'],
-            },
-            millisecond: {
-                full: ['millisekunden'],
-                short: ['millisek', 'msek'],
-                symbol: ['ms'],
-            },
-            timeJoiners: [',',', und',',und','und',''],
-            modifierJoiners: ['ob',''],
+        code: 'de-DE',
+        millennium: {
+            full: []
+        },
+        century: {
+            full: []
+        },
+        decade: {
+            full: []
+        },
+        year: {
+            full: ['jahre', 'jahr'],
+            short: [],
+            symbol: ['j']
+        },
+        day: {
+            full: ['tage', 'tag'],
+            short: [],
+            symbol: ['t']
+        },
+        hour: {
+            full: ['stunde'],
+            short: [],
+            symbol: ['st'],
+        },
+        minute: {
+            full: ['minuten'],
+            short: ['min'],
+            symbol: ['m'],
+        },
+        second: {
+            full: ['sekunden'],
+            short: ['sek'],
+            symbol: ['s'],
+        },
+        millisecond: {
+            full: ['millisekunden'],
+            short: ['millisek', 'msek'],
+            symbol: ['ms'],
+        },
+        timeJoiners: [',',', und',',und','und',''],
+        modifierJoiners: ['ob',''],
 
-            /**
-             * Pluralizes a word based on how many
-             */
-            formatNoun: function (noun, howMany) {
+        /**
+         * Pluralizes a word based on how many
+         */
+        formatNoun: function (noun, howMany) {
 
-                var plural = function (noun) {
-                    return noun + 'e';
-                };
+            var plural = function () {
+                return noun + 'e';
+            };
 
-                if (howMany === 0) {
-                    return 'kein ' + plural(noun);
-                } else if (howMany === 1) {
-                    return noun;
-                } else {
-                    return plural(noun);
-                }
+            if (howMany === 0) {
+                return 'kein ' + plural();
             }
-        };
+            else if (howMany === 1) {
+                return noun;
+            }
+            else {
+                return plural();
+            }
+        }
+    };
 
     /**
      * Module variables for duration calculations
@@ -199,7 +204,8 @@
          */
         if (locale && Locales[locale]) {
             locale = Locales[locale];
-        } else {
+        }
+        else {
             locale = Locales[defaultLocale];
         }
 
@@ -211,25 +217,29 @@
                     (this.hours < 10 ? '0' : '') + this.hours + ':' +
                     (this.minutes < 10 ? '0' : '') + this.minutes
                 );
-            } else if (this.hours > 0) {
+            }
+            else if (this.hours > 0) {
                 if (format === ':minutes') {
                     return (
                         this.hours + ':' +
                         (this.minutes < 10 ? '0' : '') + this.minutes
                     );
-                } else {
+                }
+                else {
                     return (
                         this.hours + ':' +
                         (this.minutes < 10 ? '0' : '') + this.minutes + ':' +
                         (this.seconds < 10 ? '0' : '') + this.seconds
                     );
                 }
-            } else {
+            }
+            else {
                 if (format === ':minutes') {
                     return (
                         this.minutes
                     );
-                } else {
+                }
+                else {
                     return (
                         this.minutes + ':' +
                         (this.seconds < 10 ? '0' : '') + this.seconds
@@ -564,15 +574,16 @@
                     timeSum += parseInt(timeSegments[1]) * hourInt;
                     timeSum += parseInt(timeSegments[2]) * minuteInt;
                     timeSum += parseFloat(timeSegments[3]) * secondInt;
-                } else if (timeSegments.length === 3) {
+                }
+                else if (timeSegments.length === 3) {
                     timeSum += parseInt(timeSegments[0]) * hourInt;
                     timeSum += parseInt(timeSegments[1]) * minuteInt;
                     timeSum += parseFloat(timeSegments[2]) * secondInt;
-                } else if (timeSegments.length === 2) {
+                }
+                else if (timeSegments.length === 2) {
                     timeSum += parseInt(timeSegments[0] * hourInt);
                     timeSum += parseInt(timeSegments[1] * minuteInt);
                 }
-
 
                 segments.push({
                     kind: 'duration',

@@ -158,7 +158,7 @@
         // it matches the 'teens' before the ones
         var names = [];
         for (var name in locale.numbers) {
-          names.push(name);
+            names.push(name);
         }
         names.reverse();
 
@@ -203,8 +203,10 @@
             return new core.ParsedResult(input, []);
         }
 
-        var numDigits = function(val) {
-            if (val < 1) return '';
+        var numDigits = function (val) {
+            if (val < 1) {
+                return '';
+            }
             return String(val).length;
         };
 
@@ -250,10 +252,12 @@
                 if (locale.flippers.indexOf(theSpaceBetween) > -1) {
                     numbers[numbersIndex].tokens[segmentsIndex].tokens.push(words[i]);
                     numbers[numbersIndex].tokens[segmentsIndex].value += words[i].value;
-                } else if (segmentsIndex === 0) {
+                }
+                else if (segmentsIndex === 0) {
                     numbers[numbersIndex].tokens[segmentsIndex].tokens.push(words[i]);
                     numbers[numbersIndex].tokens[segmentsIndex].value *= words[i].value;
-                } else {
+                }
+                else {
                     // might merge a segment
                     // traverse backwards until the end or sum is greater than current value
                     var segmentsTally = 0;
@@ -285,7 +289,8 @@
                     numbers[numbersIndex].tokens.push(mergedSegment);
                     segmentsIndex = splitter;
                 }
-            } else if (prevWord && numbers[numbersIndex].tokens[segmentsIndex].value > words[i].value) {
+            }
+            else if (prevWord && numbers[numbersIndex].tokens[segmentsIndex].value > words[i].value) {
                 numbers[numbersIndex].tokens.push(new core.Token(
                     words[i].value,
                     'number.segment',
@@ -294,7 +299,8 @@
                     [words[i]]
                 ));
                 segmentsIndex++;
-            } else if (prevWord) {
+            }
+            else if (prevWord) {
                 numbers[numbersIndex].tokens[segmentsIndex].value += words[i].value;
                 numbers[numbersIndex].tokens[segmentsIndex].pos = words[i].pos;
                 numbers[numbersIndex].tokens[segmentsIndex].text = words[i].text;

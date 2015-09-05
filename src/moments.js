@@ -74,18 +74,18 @@
         ],
 
         monthsOfYear: [
-        'January',
-        'February',
-        'March',
-        'April',
-        'May',
-        'June',
-        'July',
-        'August',
-        'September',
-        'October',
-        'November',
-        'December'
+            'January',
+            'February',
+            'March',
+            'April',
+            'May',
+            'June',
+            'July',
+            'August',
+            'September',
+            'October',
+            'November',
+            'December'
         ],
 
         dateOnly: function (datetime) {
@@ -132,14 +132,16 @@
                 isDate = true;
                 dayIndex = start.getDay();
                 date = start;
-            } else {
+            }
+            else {
                 dayIndex = start;
             }
             for (var i = 0; i < numOfDays; i++) {
                 var className = 'calendar-future';
                 if (date.getTime() === today.getTime()) {
                     className = 'calendar-today';
-                } else if (date.getTime() < today.getTime()) {
+                }
+                else if (date.getTime() < today.getTime()) {
                     className = 'calendar-past';
                 }
 
@@ -210,12 +212,12 @@
 
         formatDateTime: function (date) {
             var options = {
-                weekday: "long", year: "numeric", month: "short",
-                day: "numeric", hour: "numeric", minute: "2-digit"
+                weekday: 'long', year: 'numeric', month: 'short',
+                day: 'numeric', hour: 'numeric', minute: '2-digit'
             };
             date = new Date(date);
             // Friday, Feb 1, 2013 6:00 AM
-            return date.toLocaleTimeString("en-us", options);
+            return date.toLocaleTimeString('en-us', options);
         },
 
         getLocalDate: function (str) {
@@ -225,9 +227,10 @@
 
         parseLocalDate: function (str) {
             var date = null;
-            if (Date.parse(str) === NaN) {
+            if (isNaN(Date.parse(str))) {
                 date = null;
-            } else {
+            }
+            else {
                 date = new Date(Date.parse(str));
                 date.setMinutes(date.getMinutes() + date.getTimezoneOffset());
             }
