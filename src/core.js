@@ -4,7 +4,7 @@
  */
 (function (exports) {
     'use strict';
-
+    
     /**
      * Returns the given object's toString representation
      * if it is defined, otherwise returns the given object.

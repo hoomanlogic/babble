@@ -604,7 +604,7 @@
              */
             if (numToken === null) {
                 segments.push({
-                    kind: 'segment',
+                    kind: 'duration.segment',
                     pos: matches[i].pos,
                     text: matches[i].text,
                     value: matches[i].value
@@ -618,7 +618,7 @@
             var theSpaceBetween = input.slice(numToken.pos + numToken.text.length, matches[i].pos);
             if (locale.modifierJoiners.indexOf(theSpaceBetween.trim()) > -1) {
                 segments.push({
-                    kind: 'segment',
+                    kind: 'duration.segment',
                     pos: numToken.pos,
                     text: input.slice(numToken.pos, matches[i].pos + matches[i].text.length),
                     value: numToken.value * matches[i].value

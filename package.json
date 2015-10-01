@@ -2,7 +2,7 @@
   "name": "babble",
   "version": "0.2.0",
   "description": "A JavaScript library for building user interfaces that understand humans",
-  "main": "gulpfile.js",
+  "main": "index.js",
   "devDependencies": {
     "babel-core": "^5.5.8",
     "babel-eslint": "^4.0.5",
