@@ -29,6 +29,14 @@ describe('duration type toString formats', function () {
         new durations.Duration((hourInt * 2) + (minuteInt * 5)).toString().should.equal('2 hours, 5 minutes');
     })
     
+    it('hm', function() {
+        new durations.Duration((hourInt * 2) + (minuteInt * 5) + (secondInt * 3)).toString('hm').should.equal('2h5m');
+    })
+    
+    it('hms', function() {
+        new durations.Duration((hourInt * 2) + (minuteInt * 5) + (secondInt * 3)).toString('hms').should.equal('2h5m3s');
+    })
+    
 })
 
 describe('numbers parse should recognize', function() {
